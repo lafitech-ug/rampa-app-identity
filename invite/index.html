@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Únete a Rampa</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --violet: #784ae5;
+        --trustwell: #3300f5;
+        --text: #11181c;
+        --muted: #687076;
+        --bg: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(
+            circle at top,
+            rgba(120, 74, 229, 0.14),
+            transparent 36rem
+          ),
+          var(--bg);
+      }
+
+      main {
+        width: min(100%, 360px);
+        display: grid;
+        justify-items: center;
+        gap: 18px;
+        text-align: center;
+      }
+
+      img {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.1;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid rgba(120, 74, 229, 0.18);
+        border-top-color: var(--violet);
+        border-radius: 999px;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/logo.png" alt="Rampa" />
+      <h1>Únete a Rampa</h1>
+      <p id="message">Te estamos llevando a la app.</p>
+      <div class="spinner" aria-hidden="true"></div>
+    </main>
+
+    <script>
+      const ANDROID_PACKAGE = "com.anonymous.rampaapp";
+      const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
+      // Apple-assigned public listing id (https://apps.apple.com/app/id6756196244).
+      // Keep in sync with the app's APP_STORE_ID (rampa-app: src/shared/config/appStore.ts).
+      const APP_STORE_ID = "6756196244";
+      const APP_STORE_URL = `https://apps.apple.com/app/id${APP_STORE_ID}`;
+
+      // Release-readiness guard: fail loudly if the listing URL is ever missing
+      // or malformed (e.g. reverted to a generic search) instead of silently
+      // sending iOS users to the wrong destination.
+      const APP_STORE_URL_PATTERN =
+        /^https:\/\/apps\.apple\.com\/(?:[a-z]{2}\/)?app\/id\d{5,}$/;
+      if (!APP_STORE_URL_PATTERN.test(APP_STORE_URL)) {
+        throw new Error(`Invalid APP_STORE_URL: ${APP_STORE_URL}`);
+      }
+
+      // No recipientId/referral param on this route by design (first pass, no attribution).
+      const deeplink = "rampaapp:///";
+      const userAgent = navigator.userAgent || navigator.vendor || "";
+      const isAndroid = /android/i.test(userAgent);
+      const isIOS =
+        /iPad|iPhone|iPod/.test(userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+      let pageHidden = false;
+
+      const markHidden = () => {
+        pageHidden = true;
+      };
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) markHidden();
+      });
+      window.addEventListener("pagehide", markHidden);
+      window.addEventListener("blur", markHidden);
+
+      const openStoreIfStillHere = (storeUrl) => {
+        window.setTimeout(() => {
+          if (!pageHidden) {
+            window.location.replace(storeUrl);
+          }
+        }, 1400);
+      };
+
+      if (isAndroid) {
+        const intentUrl =
+          `intent://#Intent;scheme=rampaapp;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;` +
+          `S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
+
+        window.location.replace(intentUrl);
+      } else if (isIOS) {
+        window.location.replace(deeplink);
+        openStoreIfStillHere(APP_STORE_URL);
+      } else {
+        window.location.replace(deeplink);
+        openStoreIfStillHere(PLAY_STORE_URL);
+      }
+    </script>
+  </body>
+</html>
