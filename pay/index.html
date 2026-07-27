@@ -95,7 +95,8 @@
     <script>
       // Client-side only (this is a plain static page, no server-side
       // rendering/locale negotiation) — best-effort via the browser's own
-      // language preference, defaulting to Spanish for anything else.
+      // language preference, defaulting to English for anything else
+      // (unset navigator, or locales other than Spanish, e.g. pt, fr).
       const COPY = {
         es: {
           lang: "es",
@@ -115,9 +116,9 @@
       const browserLocale = (
         navigator.language ||
         (navigator.languages && navigator.languages[0]) ||
-        "es"
+        "en"
       ).toLowerCase();
-      const copy = browserLocale.startsWith("en") ? COPY.en : COPY.es;
+      const copy = browserLocale.startsWith("es") ? COPY.es : COPY.en;
 
       document.documentElement.lang = copy.lang;
       document.getElementById("page-title").textContent = copy.title;
