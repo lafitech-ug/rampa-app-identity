@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Abrir pago en Rampa</title>
+    <title id="page-title">Abrir pago en Rampa</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -87,12 +87,43 @@
   <body>
     <main>
       <img src="/logo.png" alt="Rampa" />
-      <h1>Abriendo Rampa</h1>
+      <h1 id="heading">Abriendo Rampa</h1>
       <p id="message">Te estamos llevando a la pantalla de envio.</p>
       <div class="spinner" aria-hidden="true"></div>
     </main>
 
     <script>
+      // Client-side only (this is a plain static page, no server-side
+      // rendering/locale negotiation) — best-effort via the browser's own
+      // language preference, defaulting to Spanish for anything else.
+      const COPY = {
+        es: {
+          lang: "es",
+          title: "Abrir pago en Rampa",
+          heading: "Abriendo Rampa",
+          message: "Te estamos llevando a la pantalla de envio.",
+          invalidRecipient: "Este link no tiene un destinatario valido.",
+        },
+        en: {
+          lang: "en",
+          title: "Open payment in Rampa",
+          heading: "Opening Rampa",
+          message: "Taking you to the send screen.",
+          invalidRecipient: "This link doesn't have a valid recipient.",
+        },
+      };
+      const browserLocale = (
+        navigator.language ||
+        (navigator.languages && navigator.languages[0]) ||
+        "es"
+      ).toLowerCase();
+      const copy = browserLocale.startsWith("en") ? COPY.en : COPY.es;
+
+      document.documentElement.lang = copy.lang;
+      document.getElementById("page-title").textContent = copy.title;
+      document.getElementById("heading").textContent = copy.heading;
+      document.getElementById("message").textContent = copy.message;
+
       const ANDROID_PACKAGE = "com.anonymous.rampaapp";
       const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
       // Apple-assigned public listing id (https://apps.apple.com/app/id6756196244).
@@ -147,7 +178,7 @@
       };
 
       if (!recipientId) {
-        message.textContent = "Este link no tiene un destinatario valido.";
+        message.textContent = copy.invalidRecipient;
       } else if (isAndroid) {
         const intentUrl =
           `intent://${nativePath}` +
