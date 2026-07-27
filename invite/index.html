@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Únete a Rampa</title>
+    <title id="page-title">Únete a Rampa</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -87,12 +87,41 @@
   <body>
     <main>
       <img src="/logo.png" alt="Rampa" />
-      <h1>Únete a Rampa</h1>
+      <h1 id="heading">Únete a Rampa</h1>
       <p id="message">Te estamos llevando a la app.</p>
       <div class="spinner" aria-hidden="true"></div>
     </main>
 
     <script>
+      // Client-side only (this is a plain static page, no server-side
+      // rendering/locale negotiation) — best-effort via the browser's own
+      // language preference, defaulting to Spanish for anything else.
+      const COPY = {
+        es: {
+          lang: "es",
+          title: "Únete a Rampa",
+          heading: "Únete a Rampa",
+          message: "Te estamos llevando a la app.",
+        },
+        en: {
+          lang: "en",
+          title: "Join Rampa",
+          heading: "Join Rampa",
+          message: "Taking you to the app.",
+        },
+      };
+      const browserLocale = (
+        navigator.language ||
+        (navigator.languages && navigator.languages[0]) ||
+        "es"
+      ).toLowerCase();
+      const copy = browserLocale.startsWith("en") ? COPY.en : COPY.es;
+
+      document.documentElement.lang = copy.lang;
+      document.getElementById("page-title").textContent = copy.title;
+      document.getElementById("heading").textContent = copy.heading;
+      document.getElementById("message").textContent = copy.message;
+
       const ANDROID_PACKAGE = "com.anonymous.rampaapp";
       const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
       // Apple-assigned public listing id (https://apps.apple.com/app/id6756196244).
