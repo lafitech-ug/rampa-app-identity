@@ -3,15 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title id="page-title">Únete a Rampa</title>
+    <!-- The invite code travels in the URL: never pass it to the stores or
+         anyone else in a Referer header. -->
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex" />
+    <title id="page-title">Te invitaron a Rampa</title>
     <style>
       :root {
         color-scheme: light dark;
         --violet: #784ae5;
-        --trustwell: #3300f5;
+        --violet-text: #784ae5;
+        --aqua: #22d0ea;
         --text: #11181c;
-        --muted: #687076;
+        --muted: #5f6873;
         --bg: #ffffff;
+        --surface: #f4f6ff;
+        --border: #e6e8ec;
+        --pill-bg: #0c0c0c;
+        --pill-fg: #ffffff;
+        --ok-bg: #ecfdf5;
+        --ok-text: #0b7a52;
+        --ok-border: #34d399;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --violet-text: #c4a6ff;
+          --text: #ecedee;
+          --muted: #a3abb5;
+          --bg: #0c0c0c;
+          --surface: rgba(255, 255, 255, 0.04);
+          --border: #383c41;
+          --pill-bg: #ffffff;
+          --pill-fg: #0c0c0c;
+          --ok-bg: #0c1f17;
+          --ok-text: #34d399;
+          --ok-border: #065f46;
+        }
       }
 
       * {
@@ -23,9 +51,8 @@
         min-height: 100vh;
         display: grid;
         place-items: center;
-        padding: 24px;
+        padding: 24px 16px;
         font-family:
-          Inter,
           ui-sans-serif,
           system-ui,
           -apple-system,
@@ -43,7 +70,7 @@
       }
 
       main {
-        width: min(100%, 360px);
+        width: min(100%, 380px);
         display: grid;
         justify-items: center;
         gap: 18px;
@@ -59,13 +86,131 @@
       h1 {
         margin: 0;
         font-size: 28px;
-        line-height: 1.1;
+        line-height: 1.15;
       }
 
       p {
         margin: 0;
         color: var(--muted);
         line-height: 1.5;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      .card {
+        width: 100%;
+        display: grid;
+        gap: 12px;
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--surface);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--aqua), var(--violet));
+      }
+
+      .code {
+        margin: 0;
+        font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--text);
+        user-select: all;
+        -webkit-user-select: all;
+      }
+
+      .code .prefix {
+        color: var(--muted);
+      }
+
+      .code .gap {
+        display: inline-block;
+        width: 10px;
+      }
+
+      button,
+      .button {
+        appearance: none;
+        width: 100%;
+        min-height: 48px;
+        border-radius: 24px;
+        border: 1px solid transparent;
+        font: inherit;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .primary {
+        background: var(--pill-bg);
+        color: var(--pill-fg);
+      }
+
+      .secondary {
+        background: transparent;
+        color: var(--text);
+        border-color: var(--border);
+      }
+
+      .copied {
+        background: var(--ok-bg);
+        color: var(--ok-text);
+        border-color: var(--ok-border);
+      }
+
+      .steps {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 12px;
+        text-align: left;
+      }
+
+      .steps li {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 12px;
+        align-items: start;
+        line-height: 1.45;
+      }
+
+      .steps .n {
+        width: 28px;
+        height: 28px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--violet-text);
+        background: rgba(120, 74, 229, 0.12);
+      }
+
+      .stores {
+        width: 100%;
+        display: grid;
+        gap: 10px;
+      }
+
+      .note {
+        font-size: 13px;
       }
 
       .spinner {
@@ -82,33 +227,98 @@
           transform: rotate(360deg);
         }
       }
+
+      @media (prefers-reduced-motion: reduce) {
+        .spinner {
+          animation: none;
+        }
+      }
     </style>
   </head>
   <body>
     <main>
       <img src="/logo.png" alt="Rampa" />
-      <h1 id="heading">Únete a Rampa</h1>
-      <p id="message">Te estamos llevando a la app.</p>
-      <div class="spinner" aria-hidden="true"></div>
+      <h1 id="heading">Te invitaron a Rampa</h1>
+      <p id="message">
+        Mueve y ahorra tu dinero entre países, y sigue presente en la vida de
+        los que amas.
+      </p>
+      <div class="spinner" id="spinner" aria-hidden="true"></div>
+
+      <section class="card" id="code-card" hidden aria-labelledby="code-label">
+        <p id="code-label">Tu código de invitación</p>
+        <p class="code" id="code" aria-live="polite"></p>
+        <button type="button" class="primary" id="copy-button">
+          Copiar código
+        </button>
+      </section>
+
+      <ol class="steps" id="steps" hidden>
+        <li><span class="n">1</span><span id="step-1">Descarga Rampa.</span></li>
+        <li>
+          <span class="n">2</span
+          ><span id="step-2"
+            >Al abrir Rampa, toca «¿Tienes un código de invitación?» y
+            pégalo.</span
+          >
+        </li>
+      </ol>
+
+      <div class="stores" id="stores" hidden>
+        <a class="button secondary" id="open-app" href="rampaapp:///"
+          >Abrir Rampa</a
+        >
+        <a class="button secondary" id="app-store" href="#">Descargar en App Store</a>
+        <a class="button secondary" id="play-store" href="#"
+          >Descargar en Google Play</a
+        >
+        <p class="note" id="android-note" hidden>
+          En Android, si instalas desde este botón, tu código se guarda solo.
+        </p>
+      </div>
     </main>
 
     <script>
-      // Client-side only (this is a plain static page, no server-side
-      // rendering/locale negotiation) — best-effort via the browser's own
-      // language preference, defaulting to English for anything else
-      // (unset navigator, or locales other than Spanish, e.g. pt, fr).
+      // Plain static page: no cookies, no storage, no analytics, no
+      // third-party requests (TDDDG §25). Everything below runs locally.
       const COPY = {
         es: {
           lang: "es",
-          title: "Únete a Rampa",
-          heading: "Únete a Rampa",
-          message: "Te estamos llevando a la app.",
+          title: "Te invitaron a Rampa",
+          heading: "Te invitaron a Rampa",
+          headingNoCode: "Únete a Rampa",
+          message:
+            "Mueve y ahorra tu dinero entre países, y sigue presente en la vida de los que amas.",
+          codeLabel: "Tu código de invitación",
+          copy: "Copiar código",
+          copied: "Código copiado",
+          step1: "Descarga Rampa.",
+          step2:
+            "Al abrir Rampa, toca «¿Tienes un código de invitación?» y pégalo.",
+          openApp: "Abrir Rampa",
+          appStore: "Descargar en App Store",
+          playStore: "Descargar en Google Play",
+          androidNote:
+            "En Android, si instalas desde este botón, tu código se guarda solo.",
         },
         en: {
           lang: "en",
-          title: "Join Rampa",
-          heading: "Join Rampa",
-          message: "Taking you to the app.",
+          title: "You've been invited to Rampa",
+          heading: "You've been invited to Rampa",
+          headingNoCode: "Join Rampa",
+          message:
+            "Move and save your money across borders, and stay present in the lives of the people you love.",
+          codeLabel: "Your invite code",
+          copy: "Copy code",
+          copied: "Code copied",
+          step1: "Download Rampa.",
+          step2:
+            "When you open Rampa, tap “Have an invite code?” and paste it.",
+          openApp: "Open Rampa",
+          appStore: "Download on the App Store",
+          playStore: "Get it on Google Play",
+          androidNote:
+            "On Android, if you install from this button, your code is saved automatically.",
         },
       };
       const browserLocale = (
@@ -118,13 +328,22 @@
       ).toLowerCase();
       const copy = browserLocale.startsWith("es") ? COPY.es : COPY.en;
 
-      document.documentElement.lang = copy.lang;
-      document.getElementById("page-title").textContent = copy.title;
-      document.getElementById("heading").textContent = copy.heading;
-      document.getElementById("message").textContent = copy.message;
+      const $ = (id) => document.getElementById(id);
+
+      // Same format as the backend generator (rampa-api:
+      // src/domain/referral/referral-code.ts): REF- + 8 characters without
+      // 0, O, 1 or I. Anything else is ignored, never echoed back.
+      const REFERRAL_CODE_PATTERN = /^REF-[A-HJ-NP-Z2-9]{8}$/;
+      const rawRef = new URLSearchParams(window.location.search).get("ref");
+      const candidate = (rawRef || "").trim().toUpperCase();
+      const code = REFERRAL_CODE_PATTERN.test(candidate) ? candidate : null;
 
       const ANDROID_PACKAGE = "com.anonymous.rampaapp";
-      const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
+      // The Play Store hands `referrer` to the app after install; the app's
+      // Play Install Referrer reader takes the code from utm_campaign.
+      const PLAY_STORE_URL =
+        `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}` +
+        (code ? `&referrer=utm_campaign%3D${code}` : "");
       // Apple-assigned public listing id (https://apps.apple.com/app/id6756196244).
       // Keep in sync with the app's APP_STORE_ID (rampa-app: src/shared/config/appStore.ts).
       const APP_STORE_ID = "6756196244";
@@ -139,46 +358,125 @@
         throw new Error(`Invalid APP_STORE_URL: ${APP_STORE_URL}`);
       }
 
-      // No recipientId/referral param on this route by design (first pass, no attribution).
-      const deeplink = "rampaapp:///";
+      // The app's deep-link handler stores the code for signed-out people
+      // and ignores it for signed-in ones (rampa-app: +native-intent.tsx).
+      const APP_PATH = code ? `invite?ref=${code}` : "";
+      const deeplink = `rampaapp:///${APP_PATH}`;
+
+      document.documentElement.lang = copy.lang;
+      $("page-title").textContent = code ? copy.title : copy.headingNoCode;
+      $("heading").textContent = code ? copy.heading : copy.headingNoCode;
+      $("message").textContent = copy.message;
+      $("code-label").textContent = copy.codeLabel;
+      $("copy-button").textContent = copy.copy;
+      $("step-1").textContent = copy.step1;
+      $("step-2").textContent = copy.step2;
+      $("open-app").textContent = copy.openApp;
+      $("open-app").href = deeplink;
+      $("app-store").textContent = copy.appStore;
+      $("app-store").href = APP_STORE_URL;
+      $("play-store").textContent = copy.playStore;
+      $("play-store").href = PLAY_STORE_URL;
+      $("android-note").textContent = copy.androidNote;
+
+      if (code) {
+        const [body1, body2] = [code.slice(4, 8), code.slice(8)];
+        const codeEl = $("code");
+        codeEl.textContent = "";
+        const prefix = document.createElement("span");
+        prefix.className = "prefix";
+        prefix.textContent = "REF-";
+        const gap = document.createElement("span");
+        gap.className = "gap";
+        gap.setAttribute("aria-hidden", "true");
+        codeEl.append(prefix, body1, gap, body2);
+        codeEl.setAttribute("aria-label", code.split("").join(" "));
+      }
+
       const userAgent = navigator.userAgent || navigator.vendor || "";
       const isAndroid = /android/i.test(userAgent);
+      // iPadOS reports "MacIntel" with touch; an Android UA always wins.
       const isIOS =
-        /iPad|iPhone|iPod/.test(userAgent) ||
-        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        !isAndroid &&
+        (/iPad|iPhone|iPod/.test(userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+
+      const showManualPath = () => {
+        $("spinner").hidden = true;
+        if (code) {
+          $("code-card").hidden = false;
+          $("steps").hidden = false;
+        }
+        $("stores").hidden = false;
+        $("app-store").hidden = isAndroid;
+        $("play-store").hidden = isIOS;
+        $("android-note").hidden = !code || isIOS;
+      };
+
+      const copyCode = async () => {
+        if (!code) return;
+        let copied = false;
+        try {
+          await navigator.clipboard.writeText(code);
+          copied = true;
+        } catch {
+          // Older browsers: select the code and use the legacy command.
+          const range = document.createRange();
+          range.selectNodeContents($("code"));
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          try {
+            copied = document.execCommand("copy");
+          } catch {
+            copied = false;
+          }
+        }
+        if (copied) {
+          const button = $("copy-button");
+          button.textContent = copy.copied;
+          button.className = "copied";
+          window.setTimeout(() => {
+            button.textContent = copy.copy;
+            button.className = "primary";
+          }, 2000);
+        }
+      };
+      $("copy-button").addEventListener("click", copyCode);
 
       let pageHidden = false;
-
       const markHidden = () => {
         pageHidden = true;
       };
-
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) markHidden();
       });
       window.addEventListener("pagehide", markHidden);
       window.addEventListener("blur", markHidden);
 
-      const openStoreIfStillHere = (storeUrl) => {
+      const afterAppAttempt = (fallback) => {
         window.setTimeout(() => {
-          if (!pageHidden) {
-            window.location.replace(storeUrl);
-          }
+          if (!pageHidden) fallback();
         }, 1400);
       };
 
       if (isAndroid) {
+        // Opens the app when installed; otherwise Chrome follows the fallback
+        // to Google Play, carrying the code as the install referrer.
         const intentUrl =
-          `intent://#Intent;scheme=rampaapp;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;` +
+          `intent://${APP_PATH}#Intent;scheme=rampaapp;package=${ANDROID_PACKAGE};` +
+          `action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;` +
           `S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
-
         window.location.replace(intentUrl);
+        // Browsers that ignore intent:// land here: offer the buttons.
+        afterAppAttempt(showManualPath);
       } else if (isIOS) {
+        // iOS cannot pass the code through the App Store, so the page stays
+        // to let the person copy it before installing.
         window.location.replace(deeplink);
-        openStoreIfStillHere(APP_STORE_URL);
+        afterAppAttempt(showManualPath);
       } else {
-        window.location.replace(deeplink);
-        openStoreIfStillHere(PLAY_STORE_URL);
+        showManualPath();
       }
     </script>
   </body>
