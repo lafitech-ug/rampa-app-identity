@@ -12,13 +12,13 @@
       :root {
         color-scheme: light dark;
         --violet: #784ae5;
-        --violet-text: #784ae5;
         --aqua: #22d0ea;
         --text: #11181c;
         --muted: #5f6873;
         --bg: #ffffff;
         --surface: #f4f6ff;
         --border: #e6e8ec;
+        --button-border: #c9cfd6;
         --pill-bg: #0c0c0c;
         --pill-fg: #ffffff;
         --ok-bg: #ecfdf5;
@@ -28,12 +28,12 @@
 
       @media (prefers-color-scheme: dark) {
         :root {
-          --violet-text: #c4a6ff;
           --text: #ecedee;
           --muted: #a3abb5;
           --bg: #0c0c0c;
           --surface: rgba(255, 255, 255, 0.04);
           --border: #383c41;
+          --button-border: #4a4f57;
           --pill-bg: #ffffff;
           --pill-fg: #0c0c0c;
           --ok-bg: #0c1f17;
@@ -73,7 +73,7 @@
         width: min(100%, 380px);
         display: grid;
         justify-items: center;
-        gap: 18px;
+        gap: 20px;
         text-align: center;
       }
 
@@ -102,7 +102,7 @@
       .card {
         width: 100%;
         display: grid;
-        gap: 12px;
+        gap: 14px;
         padding: 20px;
         border: 1px solid var(--border);
         border-radius: 24px;
@@ -139,6 +139,10 @@
         width: 10px;
       }
 
+      .hint {
+        width: 100%;
+      }
+
       button,
       .button {
         appearance: none;
@@ -153,7 +157,13 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        gap: 8px;
         cursor: pointer;
+      }
+
+      button svg,
+      .button svg {
+        flex-shrink: 0;
       }
 
       .primary {
@@ -161,77 +171,16 @@
         color: var(--pill-fg);
       }
 
-      .secondary {
+      .outline {
         background: transparent;
         color: var(--text);
-        border-color: var(--border);
+        border-color: var(--button-border);
       }
 
       .copied {
         background: var(--ok-bg);
         color: var(--ok-text);
         border-color: var(--ok-border);
-      }
-
-      .steps {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        display: grid;
-        gap: 12px;
-        text-align: left;
-      }
-
-      .steps li {
-        display: grid;
-        grid-template-columns: 28px 1fr;
-        gap: 12px;
-        align-items: start;
-        line-height: 1.45;
-      }
-
-      .steps .n {
-        width: 28px;
-        height: 28px;
-        border-radius: 14px;
-        display: grid;
-        place-items: center;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--violet-text);
-        background: rgba(120, 74, 229, 0.12);
-      }
-
-      .stores {
-        width: 100%;
-        display: grid;
-        gap: 10px;
-      }
-
-      .note {
-        font-size: 13px;
-      }
-
-      .spinner {
-        width: 32px;
-        height: 32px;
-        border: 3px solid rgba(120, 74, 229, 0.18);
-        border-top-color: var(--violet);
-        border-radius: 999px;
-        animation: spin 0.8s linear infinite;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .spinner {
-          animation: none;
-        }
       }
     </style>
   </head>
@@ -243,44 +192,39 @@
         Mueve y ahorra tu dinero entre países, y sigue presente en la vida de
         los que amas.
       </p>
-      <div class="spinner" id="spinner" aria-hidden="true"></div>
 
       <section class="card" id="code-card" hidden aria-labelledby="code-label">
         <p id="code-label">Tu código de invitación</p>
-        <p class="code" id="code" aria-live="polite"></p>
-        <button type="button" class="primary" id="copy-button">
-          Copiar código
+        <p class="code" id="code"></p>
+        <button type="button" class="outline" id="copy-button">
+          <svg id="copy-icon" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path id="copy-icon-path" d="M9 9h11v11H9zM5 15V5h10" />
+          </svg>
+          <span id="copy-label">Copiar código</span>
         </button>
       </section>
 
-      <ol class="steps" id="steps" hidden>
-        <li><span class="n">1</span><span id="step-1">Descarga Rampa.</span></li>
-        <li>
-          <span class="n">2</span
-          ><span id="step-2"
-            >Al abrir Rampa, toca «¿Tienes un código de invitación?» y
-            pégalo.</span
-          >
-        </li>
-      </ol>
+      <p class="hint" id="hint" hidden>
+        Copia el código y descarga Rampa. Al terminar tu registro, la app te lo
+        pedirá.
+      </p>
 
-      <div class="stores" id="stores" hidden>
-        <a class="button secondary" id="open-app" href="rampaapp:///"
-          >Abrir Rampa</a
-        >
-        <a class="button secondary" id="app-store" href="#">Descargar en App Store</a>
-        <a class="button secondary" id="play-store" href="#"
-          >Descargar en Google Play</a
-        >
-        <p class="note" id="android-note" hidden>
-          En Android, si instalas desde este botón, tu código se guarda solo.
-        </p>
-      </div>
+      <a class="button primary" id="download" href="#">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+        </svg>
+        <span id="download-label">Descargar Rampa</span>
+      </a>
     </main>
 
     <script>
       // Plain static page: no cookies, no storage, no analytics, no
-      // third-party requests (TDDDG §25). Everything below runs locally.
+      // third-party requests (TDDDG §25). Everything below runs locally; the
+      // only network use is the person tapping a store link.
       const COPY = {
         es: {
           lang: "es",
@@ -292,14 +236,8 @@
           codeLabel: "Tu código de invitación",
           copy: "Copiar código",
           copied: "Código copiado",
-          step1: "Descarga Rampa.",
-          step2:
-            "Al abrir Rampa, toca «¿Tienes un código de invitación?» y pégalo.",
-          openApp: "Abrir Rampa",
-          appStore: "Descargar en App Store",
-          playStore: "Descargar en Google Play",
-          androidNote:
-            "En Android, si instalas desde este botón, tu código se guarda solo.",
+          hint: "Copia el código y descarga Rampa. Al terminar tu registro, la app te lo pedirá.",
+          download: "Descargar Rampa",
         },
         en: {
           lang: "en",
@@ -311,14 +249,8 @@
           codeLabel: "Your invite code",
           copy: "Copy code",
           copied: "Code copied",
-          step1: "Download Rampa.",
-          step2:
-            "When you open Rampa, tap “Have an invite code?” and paste it.",
-          openApp: "Open Rampa",
-          appStore: "Download on the App Store",
-          playStore: "Get it on Google Play",
-          androidNote:
-            "On Android, if you install from this button, your code is saved automatically.",
+          hint: "Copy the code and download Rampa. Once you finish signing up, the app will ask you for it.",
+          download: "Download Rampa",
         },
       };
       const browserLocale = (
@@ -340,7 +272,8 @@
 
       const ANDROID_PACKAGE = "com.anonymous.rampaapp";
       // The Play Store hands `referrer` to the app after install; the app's
-      // Play Install Referrer reader takes the code from utm_campaign.
+      // Play Install Referrer reader takes the code from utm_campaign and
+      // prefills "Acceso con código" with it.
       const PLAY_STORE_URL =
         `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}` +
         (code ? `&referrer=utm_campaign%3D${code}` : "");
@@ -358,26 +291,20 @@
         throw new Error(`Invalid APP_STORE_URL: ${APP_STORE_URL}`);
       }
 
-      // The app's deep-link handler stores the code for signed-out people
-      // and ignores it for signed-in ones (rampa-app: +native-intent.tsx).
-      const APP_PATH = code ? `invite?ref=${code}` : "";
-      const deeplink = `rampaapp:///${APP_PATH}`;
+      const userAgent = navigator.userAgent || navigator.vendor || "";
+      const isAndroid = /android/i.test(userAgent);
 
       document.documentElement.lang = copy.lang;
       $("page-title").textContent = code ? copy.title : copy.headingNoCode;
       $("heading").textContent = code ? copy.heading : copy.headingNoCode;
       $("message").textContent = copy.message;
       $("code-label").textContent = copy.codeLabel;
-      $("copy-button").textContent = copy.copy;
-      $("step-1").textContent = copy.step1;
-      $("step-2").textContent = copy.step2;
-      $("open-app").textContent = copy.openApp;
-      $("open-app").href = deeplink;
-      $("app-store").textContent = copy.appStore;
-      $("app-store").href = APP_STORE_URL;
-      $("play-store").textContent = copy.playStore;
-      $("play-store").href = PLAY_STORE_URL;
-      $("android-note").textContent = copy.androidNote;
+      $("copy-label").textContent = copy.copy;
+      $("hint").textContent = copy.hint;
+      $("download-label").textContent = copy.download;
+      // Android: Google Play, carrying the code. Everything else (iPhone,
+      // iPad, desktop): the App Store, which can't carry it, hence "Copiar".
+      $("download").href = isAndroid ? PLAY_STORE_URL : APP_STORE_URL;
 
       if (code) {
         const [body1, body2] = [code.slice(4, 8), code.slice(8)];
@@ -391,27 +318,13 @@
         gap.setAttribute("aria-hidden", "true");
         codeEl.append(prefix, body1, gap, body2);
         codeEl.setAttribute("aria-label", code.split("").join(" "));
+        $("code-card").hidden = false;
+        $("hint").hidden = false;
       }
 
-      const userAgent = navigator.userAgent || navigator.vendor || "";
-      const isAndroid = /android/i.test(userAgent);
-      // iPadOS reports "MacIntel" with touch; an Android UA always wins.
-      const isIOS =
-        !isAndroid &&
-        (/iPad|iPhone|iPod/.test(userAgent) ||
-          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
-
-      const showManualPath = () => {
-        $("spinner").hidden = true;
-        if (code) {
-          $("code-card").hidden = false;
-          $("steps").hidden = false;
-        }
-        $("stores").hidden = false;
-        $("app-store").hidden = isAndroid;
-        $("play-store").hidden = isIOS;
-        $("android-note").hidden = !code || isIOS;
-      };
+      const COPY_ICON = "M9 9h11v11H9zM5 15V5h10";
+      const CHECK_ICON = "M5 12.5l4.5 4.5L19 7.5";
+      let resetTimer = null;
 
       const copyCode = async () => {
         if (!code) return;
@@ -432,52 +345,20 @@
             copied = false;
           }
         }
-        if (copied) {
-          const button = $("copy-button");
-          button.textContent = copy.copied;
-          button.className = "copied";
-          window.setTimeout(() => {
-            button.textContent = copy.copy;
-            button.className = "primary";
-          }, 2000);
-        }
+        if (!copied) return;
+
+        const button = $("copy-button");
+        button.className = "copied";
+        $("copy-label").textContent = copy.copied;
+        $("copy-icon-path").setAttribute("d", CHECK_ICON);
+        window.clearTimeout(resetTimer);
+        resetTimer = window.setTimeout(() => {
+          button.className = "outline";
+          $("copy-label").textContent = copy.copy;
+          $("copy-icon-path").setAttribute("d", COPY_ICON);
+        }, 2000);
       };
       $("copy-button").addEventListener("click", copyCode);
-
-      let pageHidden = false;
-      const markHidden = () => {
-        pageHidden = true;
-      };
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) markHidden();
-      });
-      window.addEventListener("pagehide", markHidden);
-      window.addEventListener("blur", markHidden);
-
-      const afterAppAttempt = (fallback) => {
-        window.setTimeout(() => {
-          if (!pageHidden) fallback();
-        }, 1400);
-      };
-
-      if (isAndroid) {
-        // Opens the app when installed; otherwise Chrome follows the fallback
-        // to Google Play, carrying the code as the install referrer.
-        const intentUrl =
-          `intent://${APP_PATH}#Intent;scheme=rampaapp;package=${ANDROID_PACKAGE};` +
-          `action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;` +
-          `S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
-        window.location.replace(intentUrl);
-        // Browsers that ignore intent:// land here: offer the buttons.
-        afterAppAttempt(showManualPath);
-      } else if (isIOS) {
-        // iOS cannot pass the code through the App Store, so the page stays
-        // to let the person copy it before installing.
-        window.location.replace(deeplink);
-        afterAppAttempt(showManualPath);
-      } else {
-        showManualPath();
-      }
     </script>
   </body>
 </html>
