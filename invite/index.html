@@ -209,7 +209,7 @@
       </div>
       <h1 id="heading">Te invitaron a Rampa</h1>
       <p id="message">
-        Mueve y ahorra tu dinero entre países, y sigue presente en la vida de
+        Mueve y ahorra tu dinero entre países y sigue presente en la vida de
         los que amas.
       </p>
 
@@ -252,7 +252,7 @@
           heading: "Te invitaron a Rampa",
           headingNoCode: "Únete a Rampa",
           message:
-            "Mueve y ahorra tu dinero entre países, y sigue presente en la vida de los que amas.",
+            "Mueve y ahorra tu dinero entre países y sigue presente en la vida de los que amas.",
           codeLabel: "Tu código de invitación",
           copy: "Copiar código",
           copied: "Código copiado",
@@ -289,6 +289,11 @@
       const rawRef = new URLSearchParams(window.location.search).get("ref");
       const candidate = (rawRef || "").trim().toUpperCase();
       const code = REFERRAL_CODE_PATTERN.test(candidate) ? candidate : null;
+      // The app only sends the inviter's first name. Limit it before showing
+      // it: this static page never interpolates HTML, but a bounded label
+      // prevents a malformed URL from becoming an unusable heading.
+      const rawName = new URLSearchParams(window.location.search).get("name") || "";
+      const inviterName = rawName.replace(/\s+/g, " ").trim().slice(0, 48);
 
       const ANDROID_PACKAGE = "com.anonymous.rampaapp";
       // The Play Store hands `referrer` to the app after install; the app's
@@ -316,7 +321,11 @@
 
       document.documentElement.lang = copy.lang;
       $("page-title").textContent = code ? copy.title : copy.headingNoCode;
-      $("heading").textContent = code ? copy.heading : copy.headingNoCode;
+      $("heading").textContent = code
+        ? (inviterName
+          ? (copy.lang === "es" ? `${inviterName} te invita a Rampa` : `${inviterName} invites you to Rampa`)
+          : copy.heading)
+        : copy.headingNoCode;
       $("message").textContent = copy.message;
       $("code-label").textContent = copy.codeLabel;
       $("copy-label").textContent = copy.copy;
