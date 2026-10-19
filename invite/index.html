@@ -80,8 +80,14 @@
       .brand {
         display: grid;
         justify-items: center;
-        /* Signal Violet, the logo's own color. */
+        /* Signal Violet on light; flat white on dark (brand rule). */
         color: #7b24e5;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .brand {
+          color: #ffffff;
+        }
       }
 
       .brand svg {
