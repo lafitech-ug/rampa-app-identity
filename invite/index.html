@@ -316,8 +316,15 @@
         throw new Error(`Invalid APP_STORE_URL: ${APP_STORE_URL}`);
       }
 
+      // Google Play for Android phones and for desktops that can't install
+      // from the App Store: Windows, Linux ("X11; Linux", also BSD under X11)
+      // and ChromeOS ("CrOS"). Apple devices (iPhone, iPad, Mac) never carry
+      // these tokens, so they keep the App Store, which is also the fallback.
+      // `cros` needs word boundaries: "Microsoft" (Teams, Outlook in-app
+      // browsers on iOS/macOS) contains it.
+      const PLAY_STORE_PLATFORM = /android|windows|linux|x11|\bcros\b/i;
       const userAgent = navigator.userAgent || navigator.vendor || "";
-      const isAndroid = /android/i.test(userAgent);
+      const usesPlayStore = PLAY_STORE_PLATFORM.test(userAgent);
 
       document.documentElement.lang = copy.lang;
       $("page-title").textContent = code ? copy.title : copy.headingNoCode;
@@ -331,9 +338,9 @@
       $("copy-label").textContent = copy.copy;
       $("hint").textContent = copy.hint;
       $("download-label").textContent = copy.download;
-      // Android: Google Play, carrying the code. Everything else (iPhone,
-      // iPad, desktop): the App Store, which can't carry it, hence "Copiar".
-      $("download").href = isAndroid ? PLAY_STORE_URL : APP_STORE_URL;
+      // Google Play carries the code. The App Store (iPhone, iPad, Mac)
+      // can't, hence "Copiar".
+      $("download").href = usesPlayStore ? PLAY_STORE_URL : APP_STORE_URL;
 
       if (code) {
         const [body1, body2] = [code.slice(4, 8), code.slice(8)];
