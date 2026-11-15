@@ -239,6 +239,11 @@
         </svg>
         <span id="download-label">Descargar Rampa</span>
       </a>
+
+      <!-- Phones only: opens the installed app with the code (see openApp). -->
+      <a class="button outline" id="open-app" href="#" hidden>
+        <span id="open-app-label">Ya tengo Rampa: abrir la app</span>
+      </a>
     </main>
 
     <script>
@@ -258,6 +263,7 @@
           copied: "Código copiado",
           hint: "Copia el código y descarga Rampa. Al terminar tu registro, la app te lo pedirá.",
           download: "Descargar Rampa",
+          openApp: "Ya tengo Rampa: abrir la app",
         },
         en: {
           lang: "en",
@@ -271,6 +277,7 @@
           copied: "Code copied",
           hint: "Copy the code and download Rampa. Once you finish signing up, the app will ask you for it.",
           download: "Download Rampa",
+          openApp: "I already have Rampa: open the app",
         },
       };
       const browserLocale = (
@@ -338,9 +345,47 @@
       $("copy-label").textContent = copy.copy;
       $("hint").textContent = copy.hint;
       $("download-label").textContent = copy.download;
+      $("open-app-label").textContent = copy.openApp;
       // Google Play carries the code. The App Store (iPhone, iPad, Mac)
       // can't, hence "Copiar".
       $("download").href = usesPlayStore ? PLAY_STORE_URL : APP_STORE_URL;
+
+      // Open the installed app through its own scheme. The app routes
+      // rampaapp://invite?ref=REF-… to the invite screen, which stores the
+      // code for "Acceso con código" (rampa-app: +native-intent.tsx).
+      // Until the domain serves App Links / Universal Links verification
+      // files, this is how an invite reaches an app that is already there.
+      const APP_SCHEME = "rampaapp";
+      const APP_PATH = "invite" + (code ? `?ref=${code}` : "");
+      // iPadOS reports itself as a Mac; touch support tells them apart.
+      const isIOS =
+        /iphone|ipad|ipod/i.test(userAgent) ||
+        (/macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1);
+      const isAndroid = /android/i.test(userAgent);
+
+      if (isAndroid) {
+        // Chrome opens the app if it is installed and otherwise goes to the
+        // fallback URL (Play Store, which carries the code), without an error
+        // page. Browsers that don't support intent:// stay on this page.
+        const intentUrl =
+          `intent://${APP_PATH}#Intent;scheme=${APP_SCHEME};` +
+          `package=${ANDROID_PACKAGE};` +
+          `S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
+        $("open-app").href = intentUrl;
+        $("open-app").hidden = false;
+        // Not again when the person comes back to this page (back button,
+        // restored from the back/forward cache).
+        const navigation = performance.getEntriesByType("navigation")[0];
+        if (!navigation || navigation.type === "navigate") {
+          window.location.replace(intentUrl);
+        }
+      } else if (isIOS) {
+        // iOS has no fallback for a custom scheme: without the app, Safari
+        // shows an error. So only on tap, and the page stays (code + App
+        // Store) for everyone else.
+        $("open-app").href = `${APP_SCHEME}://${APP_PATH}`;
+        $("open-app").hidden = false;
+      }
 
       if (code) {
         const [body1, body2] = [code.slice(4, 8), code.slice(8)];
