@@ -23,6 +23,10 @@
           (!nav || nav.type === "navigate")
         ) {
           document.documentElement.classList.add("redirecting");
+          // Failsafe if the body script never runs its own reveal.
+          setTimeout(function () {
+            document.documentElement.classList.remove("redirecting");
+          }, 3000);
         }
       })();
     </script>
@@ -449,7 +453,7 @@
         try {
           await navigator.clipboard.writeText(code);
           copied = true;
-        } catch {
+        } catch (e) {
           // Older browsers: select the code and use the legacy command.
           const range = document.createRange();
           range.selectNodeContents($("code"));
@@ -458,7 +462,7 @@
           selection.addRange(range);
           try {
             copied = document.execCommand("copy");
-          } catch {
+          } catch (e) {
             copied = false;
           }
         }
