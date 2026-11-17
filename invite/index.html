@@ -8,6 +8,31 @@
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex" />
     <title id="page-title">Te invitaron a Rampa</title>
+    <script>
+      // Android, first visit: the page is about to hand off to the app (or
+      // the Play Store), so only the logo is painted until that happens.
+      // Without this the full landing flashes for a moment before leaving.
+      // The body script reveals it if the page is still here (or comes back).
+      // Back button / back-forward cache: no auto-open, show it right away.
+      (function () {
+        var nav = performance.getEntriesByType
+          ? performance.getEntriesByType("navigation")[0]
+          : null;
+        if (
+          /android/i.test(navigator.userAgent || "") &&
+          (!nav || nav.type === "navigate")
+        ) {
+          // The auto-open decision; the class is presentation only, so the
+          // failsafe below can reveal the page without cancelling it.
+          window.__rampaAutoOpen = true;
+          document.documentElement.classList.add("redirecting");
+          // Failsafe if the body script never runs its own reveal.
+          setTimeout(function () {
+            document.documentElement.classList.remove("redirecting");
+          }, 3000);
+        }
+      })();
+    </script>
     <style>
       :root {
         color-scheme: light dark;
@@ -111,6 +136,12 @@
 
       [hidden] {
         display: none !important;
+      }
+
+      /* While handing off to the app: keep the layout (no jump when it is
+         revealed), paint only the logo on the page background. */
+      .redirecting main > :not(.brand) {
+        visibility: hidden;
       }
 
       .card {
@@ -374,9 +405,21 @@
         $("open-app").href = intentUrl;
         $("open-app").hidden = false;
         // Not again when the person comes back to this page (back button,
-        // restored from the back/forward cache).
-        const navigation = performance.getEntriesByType("navigation")[0];
-        if (!navigation || navigation.type === "navigate") {
+        // restored from the back/forward cache): the head script only sets
+        // `__rampaAutoOpen` on a fresh navigation.
+        const root = document.documentElement;
+        if (window.__rampaAutoOpen === true) {
+          const reveal = () => root.classList.remove("redirecting");
+          // Still here after the hand-off (app and Play Store missing, or a
+          // browser without intent:// support), or the person came back
+          // from the app: show the full page.
+          window.setTimeout(reveal, 1800);
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") reveal();
+          });
+          window.addEventListener("pageshow", (event) => {
+            if (event.persisted) reveal();
+          });
           window.location.replace(intentUrl);
         }
       } else if (isIOS) {
@@ -413,7 +456,7 @@
         try {
           await navigator.clipboard.writeText(code);
           copied = true;
-        } catch {
+        } catch (e) {
           // Older browsers: select the code and use the legacy command.
           const range = document.createRange();
           range.selectNodeContents($("code"));
@@ -422,7 +465,7 @@
           selection.addRange(range);
           try {
             copied = document.execCommand("copy");
-          } catch {
+          } catch (e) {
             copied = false;
           }
         }
