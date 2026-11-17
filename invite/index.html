@@ -22,6 +22,9 @@
           /android/i.test(navigator.userAgent || "") &&
           (!nav || nav.type === "navigate")
         ) {
+          // The auto-open decision; the class is presentation only, so the
+          // failsafe below can reveal the page without cancelling it.
+          window.__rampaAutoOpen = true;
           document.documentElement.classList.add("redirecting");
           // Failsafe if the body script never runs its own reveal.
           setTimeout(function () {
@@ -403,9 +406,9 @@
         $("open-app").hidden = false;
         // Not again when the person comes back to this page (back button,
         // restored from the back/forward cache): the head script only sets
-        // `redirecting` on a fresh navigation.
+        // `__rampaAutoOpen` on a fresh navigation.
         const root = document.documentElement;
-        if (root.classList.contains("redirecting")) {
+        if (window.__rampaAutoOpen === true) {
           const reveal = () => root.classList.remove("redirecting");
           // Still here after the hand-off (app and Play Store missing, or a
           // browser without intent:// support), or the person came back
