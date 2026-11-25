@@ -1,445 +1,877 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- The invite code travels in the URL: never pass it to the stores or
-         anyone else in a Referer header. -->
-    <meta name="referrer" content="no-referrer" />
-    <meta name="robots" content="noindex" />
-    <title id="page-title">Te invitaron a Rampa</title>
-    <style>
-      :root {
-        color-scheme: light dark;
-        --violet: #784ae5;
-        --aqua: #22d0ea;
-        --text: #11181c;
-        --muted: #5f6873;
-        --bg: #ffffff;
-        --surface: #f4f6ff;
-        --border: #e6e8ec;
-        --button-border: #c9cfd6;
-        --pill-bg: #0c0c0c;
-        --pill-fg: #ffffff;
-        --ok-bg: #ecfdf5;
-        --ok-text: #0b7a52;
-        --ok-border: #34d399;
-      }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- The invite code travels in the URL: never pass it to the stores or
+       anyone else in a Referer header. -->
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>Te invitaron a Rampa</title>
+  <meta name="description" content="Envía a los tuyos gratis entre usuarios de Rampa, recibe pagos del exterior y guarda en dólares digitales. Únete con tu código de invitación.">
+  <meta name="theme-color" content="#FFFDF8">
+  <!-- Link preview (WhatsApp, Telegram, iMessage). og:image needs an absolute URL once hosted. -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Te invitaron a Rampa">
+  <meta property="og:description" content="Tu dinero y tu familia, más cerca. Únete con el código de invitación.">
+  <meta property="og:locale" content="es_ES">
+  <link rel="icon" href="/invite/assets/favicon.svg" type="image/svg+xml">
+  <!-- Fonts are served from this site, not Google Fonts: no visitor data
+       goes to a third party (TDDDG §25 / GDPR). SIL OFL 1.1, see assets/fonts. -->
+  <link rel="preload" href="/invite/assets/fonts/oswald-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/invite/assets/fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face {
+      font-family: "Oswald"; font-style: normal; font-weight: 200 700; font-display: swap;
+      src: url("/invite/assets/fonts/oswald-latin-wght-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Manrope"; font-style: normal; font-weight: 200 800; font-display: swap;
+      src: url("/invite/assets/fonts/manrope-latin-wght-normal.woff2") format("woff2");
+    }
 
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --text: #ecedee;
-          --muted: #a3abb5;
-          --bg: #0c0c0c;
-          --surface: rgba(255, 255, 255, 0.04);
-          --border: #383c41;
-          --button-border: #4a4f57;
-          --pill-bg: #ffffff;
-          --pill-fg: #0c0c0c;
-          --ok-bg: #0c1f17;
-          --ok-text: #34d399;
-          --ok-border: #065f46;
-        }
-      }
+    /* ===== Rampa tokens (DESIGN.md v1.1, web = light) ===== */
+    :root {
+      --daylight: #FFFDF8;
+      --paper-2: #F4F5F6;
+      --base-lt: #FCFCFD;
+      --ink: #0C0C0C;
+      --graphite: #5A5A5A;
+      --line: #CBCFD2;
+      --violet: #7B24E5;
+      --violet-tint: rgba(123, 36, 229, .10);
+      --aqua: #23D3D5;
+      --transit: #2A9ACB;
+      --transit-tint: rgba(42, 154, 203, .12);
+      --midnight: #1A0437;
+      --trustwell: #370D75;
+      --success: #17C653;
 
-      * {
-        box-sizing: border-box;
-      }
+      --display: "Oswald", "Arial Narrow", sans-serif;
+      --sans: "Manrope", system-ui, -apple-system, sans-serif;
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 24px 16px;
-        font-family:
-          ui-sans-serif,
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
-        color: var(--text);
-        background:
-          radial-gradient(
-            circle at top,
-            rgba(120, 74, 229, 0.14),
-            transparent 36rem
-          ),
-          var(--bg);
-      }
+      --gutter: clamp(16px, 4vw, 48px);
+      --max: 1080px;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+      --header-h: 64px;
+      --chips-h: 56px;
+    }
 
-      main {
-        width: min(100%, 380px);
-        display: grid;
-        justify-items: center;
-        gap: 20px;
-        text-align: center;
-      }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + var(--chips-h) + 8px); -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; background: var(--daylight); color: var(--ink);
+      font-family: var(--sans); font-size: 16px; line-height: 1.55;
+      -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    h1, h2, h3, p, ol, ul, dl, dd, figure { margin: 0; padding: 0; }
+    ol, ul { list-style: none; }
+    a { color: inherit; }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+    img { display: block; max-width: 100%; }
+    :focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; border-radius: 8px; }
+    [hidden] { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 
-      .brand {
-        display: grid;
-        justify-items: center;
-        /* Signal Violet on light; flat white on dark (brand rule). */
-        color: #7b24e5;
-      }
+    /* ===== type ===== */
+    .h1, .h2 { font-family: var(--display); font-weight: 600; text-transform: uppercase; letter-spacing: -.005em; }
+    .h1 { font-size: clamp(48px, 13vw, 96px); line-height: .92; }
+    .h2 { font-size: clamp(34px, 8.5vw, 60px); line-height: .96; }
+    .h1 em, .h2 em { font-style: normal; color: var(--violet); }
+    .band .h2 em { color: var(--aqua); }
+    .lead { font-size: clamp(17px, 4.4vw, 20px); font-weight: 500; line-height: 1.5; color: var(--graphite); max-width: 34ch; }
+    .label { font-weight: 700; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--violet); }
+    .section-intro { margin-top: 12px; color: var(--graphite); max-width: 52ch; }
 
-      @media (prefers-color-scheme: dark) {
-        .brand {
-          color: #ffffff;
-        }
-      }
+    /* ===== buttons ===== */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      height: 56px; padding: 0 28px; border-radius: 999px;
+      font-family: var(--sans); font-weight: 700; font-size: 17px; letter-spacing: .01em;
+      text-decoration: none; white-space: nowrap;
+      transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s;
+    }
+    .btn--primary { background: var(--violet); color: var(--daylight); }
+    .btn--sm { height: 44px; padding: 0 18px; font-size: 15px; }
+    .btn--block { width: 100%; }
+    @media (hover: hover) {
+      .btn--primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px -6px rgba(123, 36, 229, .55); }
+    }
+    .btn:active { transform: scale(.98); }
 
-      .brand svg {
-        width: 88px;
-        height: auto;
-        aspect-ratio: 699.5 / 721;
-        fill: currentColor;
-      }
+    /* ===== header ===== */
+    .top {
+      position: sticky; top: 0; z-index: 30; height: var(--header-h);
+      background: rgba(255, 253, 248, .88); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    }
+    .top .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .top__logo { display: inline-flex; padding: 8px 0; }
+    .top__logo img { height: 26px; width: auto; }
 
-      h1 {
-        margin: 0;
-        font-size: 28px;
-        line-height: 1.15;
+    /* ===== hero ===== */
+    .hero { padding: 20px 0 36px; }
+    .hero__who { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .avatar {
+      flex: none; width: 56px; height: 56px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--violet); color: var(--daylight);
+      font-weight: 700; font-size: 22px;
+      box-shadow: 0 0 0 3px var(--daylight), 0 0 0 5px var(--aqua);
+      overflow: hidden;
+    }
+    /* with the inviter's photo the hero becomes a photo card: the face leads,
+       the headline sits on the Carbon overlay (DESIGN.md Carbon Overlay Rule) */
+    .hero--photo .hero__head {
+      position: relative; isolation: isolate; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      aspect-ratio: 1 / 1; max-width: 100%; padding: 24px 20px;
+      border-radius: 32px; background: var(--midnight);
+    }
+    .hero__photo { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+    .hero--photo .hero__head::after {
+      content: ""; position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(to top, rgba(12, 12, 12, .72) 0%, rgba(12, 12, 12, .5) 32%, rgba(12, 12, 12, 0) 62%);
+    }
+    .hero--photo .hero__who { display: none !important; }
+    .hero--photo .h1 { color: var(--daylight); font-size: clamp(40px, 11.5vw, 76px); }
+    .hero--photo .h1 em { color: var(--aqua); }
+    /* desktop: text column on the left, the photo gets its own column on the right */
+    @media (min-width: 900px) {
+      .hero--photo .hero__grid {
+        grid-template-columns: 1fr minmax(0, 1fr); grid-template-rows: auto auto 1fr;
+        grid-template-areas: "title photo" "lead photo" "code photo";
+        column-gap: 64px; align-items: start;
       }
+      .hero--photo .hero__grid > div:first-child, .hero--photo .hero__head { display: contents; }
+      .hero--photo .hero__head::after { content: none; }
+      .hero--photo .hero__photo {
+        grid-area: photo; position: static; z-index: auto; align-self: stretch;
+        min-height: 520px; border-radius: 32px; background: var(--midnight);
+      }
+      .hero--photo .h1 { grid-area: title; color: var(--ink); font-size: clamp(56px, 6.4vw, 92px); }
+      .hero--photo .h1 em { color: var(--violet); }
+      .hero--photo .lead { grid-area: lead; }
+      .hero--photo .code-card { grid-area: code; margin-top: 32px; }
+    }
+    .hero__who p { font-size: 14px; line-height: 1.4; color: var(--graphite); }
+    .hero__who strong { display: block; color: var(--ink); font-size: 16px; }
+    .hero .lead { margin-top: 16px; }
 
-      p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.5;
-      }
+    .code-card {
+      margin-top: 28px; padding: 20px; border-radius: 24px;
+      background: var(--paper-2); border: 1px solid var(--line);
+    }
+    .code-card__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 6px 0 18px; }
+    .code {
+      font-family: var(--sans); font-weight: 800; font-size: clamp(26px, 7.6vw, 34px);
+      letter-spacing: .02em; font-variant-numeric: tabular-nums; line-height: 1.1; min-width: 0; overflow-wrap: anywhere;
+    }
+    @media (max-width: 419px) {
+      .code { font-size: clamp(22px, 7vw, 28px); }
+      .copy { width: 44px; padding: 0; justify-content: center; }
+      .copy [data-copy-text] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .copy svg { width: 20px; height: 20px; }
+    }
+    .copy {
+      flex: none; display: inline-flex; align-items: center; gap: 6px;
+      min-height: 44px; padding: 0 16px; border-radius: 999px;
+      background: var(--daylight); border: 1px solid var(--line);
+      font-weight: 700; font-size: 14px; color: var(--violet);
+      transition: background-color .18s, border-color .18s, color .18s;
+    }
+    .copy svg { width: 18px; height: 18px; }
+    .copy[data-done] { color: #0E7A35; border-color: rgba(23, 198, 83, .4); background: rgba(23, 198, 83, .1); }
+    .code-card__hint { margin-top: 12px; font-size: 13px; line-height: 1.45; color: var(--graphite); text-align: center; }
 
-      [hidden] {
-        display: none !important;
-      }
+    /* ===== section chips nav ===== */
+    .chips {
+      position: sticky; top: var(--header-h); z-index: 20; height: var(--chips-h);
+      background: rgba(255, 253, 248, .94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(203, 207, 210, .6);
+    }
+    .chips ul {
+      height: 100%; display: flex; align-items: center; gap: 8px;
+      overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity;
+      padding: 0 var(--gutter); max-width: var(--max); margin: 0 auto;
+    }
+    .chips ul::-webkit-scrollbar { display: none; }
+    .chips a {
+      display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 999px;
+      font-size: 14px; font-weight: 600; white-space: nowrap; text-decoration: none; color: var(--graphite);
+      border: 1px solid var(--line); background: var(--base-lt); scroll-snap-align: start;
+      transition: background-color .18s, color .18s, border-color .18s;
+    }
+    .chips a[aria-current="true"] { background: var(--ink); color: var(--daylight); border-color: var(--ink); }
 
-      .card {
-        width: 100%;
-        display: grid;
-        gap: 14px;
-        padding: 20px;
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        background: var(--surface);
-        position: relative;
-        overflow: hidden;
-      }
+    section.block { padding: 56px 0; }
+    section.block + section.block { border-top: 1px solid rgba(203, 207, 210, .5); }
 
-      .card::before {
-        content: "";
-        position: absolute;
-        inset: 0 0 auto 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--aqua), var(--violet));
-      }
+    /* ===== features ===== */
+    .features { margin-top: 28px; display: grid; gap: 12px; }
+    .feature {
+      display: grid; grid-template-columns: 48px 1fr; gap: 16px; align-items: start;
+      padding: 18px; border-radius: 16px; background: var(--base-lt); border: 1px solid var(--line);
+    }
+    .icon { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--violet-tint); color: var(--violet); }
+    .icon--blue { background: var(--transit-tint); color: #1D7099; }
+    .icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .feature h3 { font-size: 18px; font-weight: 700; line-height: 1.25; letter-spacing: -.01em; }
+    .feature p { margin-top: 4px; font-size: 15px; line-height: 1.5; color: var(--graphite); }
+    .feature .note { display: block; margin-top: 6px; font-size: 13px; }
 
-      .code {
-        margin: 0;
-        font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
-        font-size: 30px;
-        font-weight: 700;
-        letter-spacing: 2px;
-        color: var(--text);
-        user-select: all;
-        -webkit-user-select: all;
-      }
+    .phone { margin: 32px auto 0; width: min(240px, 64vw); }
+    .phone__frame {
+      border-radius: 32px; overflow: hidden; background: var(--midnight); padding: 6px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, .18);
+    }
+    .phone__frame img { border-radius: 26px; width: 100%; height: auto; aspect-ratio: 923 / 2000; }
+    .phone figcaption { margin-top: 12px; text-align: center; font-size: 13px; color: var(--graphite); }
 
-      .code .prefix {
-        color: var(--muted);
-      }
+    /* ===== costs band ===== */
+    .band { background: var(--midnight); color: var(--daylight); border-radius: 32px; padding: 40px 20px; }
+    .band .section-intro { color: rgba(255, 253, 248, .78); }
+    .fees { margin-top: 28px; border-radius: 16px; background: rgba(255, 253, 248, .06); border: 1px solid rgba(255, 253, 248, .14); }
+    .fee { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px; }
+    .fee + .fee { border-top: 1px solid rgba(255, 253, 248, .14); }
+    .fee dt { font-weight: 700; font-size: 16px; line-height: 1.3; }
+    .fee dt span { display: block; margin-top: 2px; font-weight: 400; font-size: 13px; color: rgba(255, 253, 248, .7); }
+    .fee dd { flex: none; text-align: right; font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .fee dd.free { color: var(--aqua); }
+    .example { margin-top: 16px; padding: 16px 18px; border-radius: 16px; background: rgba(35, 211, 213, .1); border: 1px solid rgba(35, 211, 213, .3); font-size: 14px; line-height: 1.5; }
+    .example strong { color: var(--aqua); font-variant-numeric: tabular-nums; }
 
-      .code .gap {
-        display: inline-block;
-        width: 10px;
-      }
+    /* ===== steps ===== */
+    .steps { margin-top: 28px; display: grid; gap: 0; counter-reset: s; }
+    .step { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 16px; padding-bottom: 24px; }
+    .step:last-child { padding-bottom: 0; }
+    .step::before {
+      counter-increment: s; content: counter(s);
+      width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--violet); color: var(--daylight); font-weight: 700; font-size: 16px;
+    }
+    .step:not(:last-child)::after { content: ""; position: absolute; left: 19.5px; top: 44px; bottom: 4px; width: 1px; background: var(--line); }
+    .step h3 { font-size: 18px; font-weight: 700; line-height: 1.3; padding-top: 8px; }
+    .step p { margin-top: 4px; color: var(--graphite); font-size: 15px; }
 
-      .hint {
-        width: 100%;
-      }
+    /* ===== faq ===== */
+    .faq { margin-top: 28px; border-top: 1px solid var(--line); }
+    .faq details { border-bottom: 1px solid var(--line); }
+    .faq summary {
+      list-style: none; cursor: pointer; min-height: 60px; padding: 16px 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      font-weight: 700; font-size: 17px; line-height: 1.35;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: ""; flex: none; width: 28px; height: 28px; border-radius: 50%;
+      background: var(--paper-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237B24E5' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 6v12M6 12h12'/%3E%3C/svg%3E") center / 16px no-repeat;
+      transition: transform .18s var(--ease);
+    }
+    .faq details.is-open summary::after { transform: rotate(45deg); }
+    .faq__body { overflow: hidden; }
+    .faq details p { padding: 0 0 18px; color: var(--graphite); font-size: 15px; max-width: 62ch; }
+    .faq details p + p { margin-top: -8px; }
 
-      button,
-      .button {
-        appearance: none;
-        width: 100%;
-        min-height: 48px;
-        border-radius: 24px;
-        border: 1px solid transparent;
-        font: inherit;
-        font-size: 16px;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        cursor: pointer;
-      }
+    /* ===== final CTA ===== */
+    .final { text-align: center; }
+    .final .band { padding: 44px 20px; }
+    .final .h2 { margin: 0 auto; }
+    .final p { margin: 14px auto 0; max-width: 36ch; color: rgba(255, 253, 248, .78); }
+    .final__code { display: inline-block; margin-top: 24px; padding: 10px 20px; border-radius: 999px; border: 1px dashed rgba(35, 211, 213, .6); font-weight: 800; font-size: 20px; letter-spacing: .03em; color: var(--aqua); }
+    .final .btn { margin-top: 20px; max-width: 360px; }
 
-      button svg,
-      .button svg {
-        flex-shrink: 0;
-      }
+    /* ===== footer ===== */
+    footer { margin-top: 56px; background: var(--trustwell); color: var(--daylight); padding: 40px 0 calc(40px + env(safe-area-inset-bottom)); }
+    /* on phones the hero button and the bottom dock carry the action, so the header stays quiet */
+    @media (max-width: 899px) { .top .btn { display: none; } }
+    footer img { height: 26px; width: auto; filter: brightness(0) invert(.99) sepia(.05); }
+    footer p { margin-top: 16px; font-size: 13px; line-height: 1.55; color: rgba(255, 253, 248, .78); max-width: 60ch; }
 
-      .primary {
-        background: var(--pill-bg);
-        color: var(--pill-fg);
-      }
+    /* ===== sticky bottom CTA (mobile) ===== */
+    .dock {
+      position: fixed; z-index: 40; left: 0; right: 0; bottom: 0;
+      padding: 12px var(--gutter) calc(12px + env(safe-area-inset-bottom));
+      background: rgba(255, 253, 248, .96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--line);
+      display: flex; align-items: center; gap: 12px;
+      transform: translateY(110%); transition: transform .24s var(--ease);
+    }
+    .dock[data-show] { transform: none; }
+    .dock__code { flex: 1; min-width: 0; font-size: 12px; line-height: 1.3; color: var(--graphite); }
+    .dock__code strong { display: block; font-size: 15px; color: var(--ink); font-weight: 800; letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dock .btn { flex: none; }
 
-      .outline {
-        background: transparent;
-        color: var(--text);
-        border-color: var(--button-border);
-      }
+    /* ===== wider screens ===== */
+    @media (min-width: 900px) {
+      :root { --header-h: 72px; }
+      .hero { padding: 48px 0 64px; }
+      .hero__grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 56px; align-items: end; }
+      .code-card { margin-top: 0; padding: 28px; }
+      .code { font-size: 30px; white-space: nowrap; }
+      .features-grid { display: grid; grid-template-columns: 1fr 260px; gap: 56px; align-items: start; }
+      .features { grid-template-columns: 1fr 1fr; }
+      .phone { position: sticky; top: calc(var(--header-h) + var(--chips-h) + 32px); margin-top: 28px; width: 260px; }
+      .band { padding: 56px; }
+      .fees, .example { max-width: 720px; }
+      .steps { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+      .step { grid-template-columns: 1fr; gap: 14px; padding: 24px; border-radius: 16px; background: var(--base-lt); border: 1px solid var(--line); }
+      .step:not(:last-child)::after { display: none; }
+      .step h3 { padding-top: 0; }
+      .faq { max-width: 760px; }
+      .dock { display: none; }
+    }
 
-      .copied {
-        background: var(--ok-bg);
-        color: var(--ok-text);
-        border-color: var(--ok-border);
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <div class="brand" role="img" aria-label="Rampa">
-        <!-- Official Rampa logo (R mark + "rampa" wordmark), vectorized from
-             the App Icon iOS - Light master. Do not redraw by hand. -->
-        <svg viewBox="0 0 699.5 721" aria-hidden="true">
-          <path d="M443 631.2L443 541.5L461 541.5L479 541.5L479 547.8C479 551.6 479.2 554 479.5 554C479.8 554 480 553.8 480 553.6C480 552.7 486.2 546.4 489.2 544.3C493 541.6 495.4 540.4 499.8 538.9C502.9 537.9 504.1 537.8 512 537.8C520.9 537.8 525.4 538.6 530.4 540.8C531.3 541.2 532.8 541.9 533.9 542.3C539.5 544.9 548.5 552.8 552.3 558.5C556.9 565.3 560.7 574.7 562.5 583.8C563.9 591.1 564.2 594.5 564.2 605C564.2 619.1 563.3 625.1 559.6 636.5C555.2 650.3 546.1 661.4 534.2 667.4C527.3 670.9 521.1 672.2 511.5 672.2C504.1 672.2 501.7 671.8 496.5 669.9C493.7 668.8 492.8 668.3 489.2 666.1C487 664.6 480 657.8 480 657C480 656.7 479.8 656.5 479.5 656.5C479.2 656.5 479 667.6 479 688.8L479 721L461 721L443 721L443 631.2ZM124.8 672C122.8 671.8 120.2 671.3 119 671C117.8 670.7 116.1 670.3 115.4 670.2C114.6 670 113.9 669.7 113.7 669.4C113.6 669.2 113.1 669 112.7 669C111.4 669 105.6 665.9 103.2 663.9C98 659.7 93.3 652.9 91.9 647.7C90.1 640.5 90.1 630.2 92 624.5C92.9 621.5 95.7 615.6 96.5 615C96.6 614.9 97.4 613.9 98.2 612.8C103.5 605.7 115.6 598.8 127.5 596C132.5 594.8 134 594.5 136.5 594C145.4 592.3 158.1 591 166.1 591L172 591L172 586.7C172 576.3 167.8 570.2 158.8 567.5C157.8 567.2 154.5 566.9 151.6 566.9C144.4 566.9 139.5 568.7 136.1 572.5C134.4 574.4 132.2 578.5 131.5 581.1L130.9 583.5L112.9 583.5L95 583.5L95 582.2C95 581 96.5 574.9 97.6 571.5C98.3 569.5 102.9 560.4 103.5 560C103.6 559.9 104.3 559 105 558C107.9 553.9 114.6 548.1 120.6 544.8C123.4 543.3 130.1 540.5 132.5 540C133.5 539.7 135.9 539.2 138 538.7C142.9 537.6 162.6 537.4 167.2 538.4C175.6 540.3 186 544.5 188.4 546.8C188.8 547.2 189.3 547.5 189.5 547.5C189.7 547.5 191.7 549.2 193.9 551.4C199.5 556.8 202.9 562.2 205.5 569.5C208.1 576.9 208.1 576.9 208.5 616.8C208.9 655 209 656 211 665C211.2 666.2 211.5 667.5 211.5 667.9C211.5 668.4 207.5 668.5 193.3 668.5C179.4 668.5 175 668.4 174.6 667.9C174.2 667.3 173.4 662.6 172.7 656.4L172.4 653.5L168.3 657.7C166.1 660 162.8 662.8 161.1 664C157.7 666.2 150.7 669.7 148.5 670.2C147.8 670.3 145.7 670.8 143.8 671.2C139.6 672.2 129.6 672.6 124.8 672ZM612.8 672C610.8 671.8 608.2 671.3 607 671C605.8 670.7 604.1 670.3 603.4 670.2C602.6 670 601.9 669.7 601.7 669.4C601.6 669.2 601.1 669 600.7 669C599.4 669 593.6 665.9 591.2 663.9C586 659.7 581.3 652.9 579.9 647.7C578.1 640.5 578.1 630.2 580 624.5C580.9 621.5 583.7 615.6 584.5 615C584.6 614.9 585.4 613.9 586.2 612.8C590.8 606.6 599 601.4 609.8 597.7C612 597 614.5 596.2 615.5 596C620.5 594.8 622 594.5 624.5 594C633.4 592.3 646.1 591 654.1 591L660 591L660 586.7C660 576.3 655.8 570.2 646.8 567.5C645.8 567.2 642.5 566.9 639.6 566.9C632.5 566.9 628 568.5 624.1 572.4C622.6 573.9 620.3 578.2 619.5 581.1L618.9 583.5L600.9 583.5L583 583.5L583 582.2C583 581 584.5 575 585.6 571.5C586.3 569.5 590.9 560.4 591.4 560C591.6 559.9 592.3 559 593 558C595.1 554.9 600.6 549.9 605.1 547C609.2 544.3 616.8 540.8 620.5 540C621.5 539.7 623.9 539.2 626 538.7C630.9 537.6 650.6 537.4 655.2 538.4C663.6 540.3 674 544.5 676.4 546.8C676.8 547.2 677.3 547.5 677.5 547.5C677.7 547.5 679.7 549.2 681.9 551.4C687.5 556.8 690.9 562.2 693.5 569.5C696.1 576.9 696.1 576.9 696.5 616.8C696.9 654.9 697 656.5 699 665C699.2 666.2 699.5 667.5 699.5 667.9C699.5 668.4 695.5 668.5 681.3 668.5C667.4 668.5 663 668.4 662.6 667.9C662.2 667.3 661.4 662.6 660.7 656.4L660.4 653.5L656.3 657.7C651.7 662.4 647.6 665.3 642.1 667.9C638.2 669.7 637.2 670 631.5 671.3C627.5 672.2 617.5 672.6 612.8 672ZM0 605L0 541.5L18 541.5L36 541.5L36 549.8C36 554.3 36.2 558 36.4 558C36.6 558 37.6 556.6 38.7 554.9C41.8 550 48.6 543.6 53.2 541.3C59.2 538.3 63.9 537.3 70.8 537.6C75.8 537.9 79.6 539 81.3 540.7C81.9 541.3 82 544 82 556.4C82 564.6 81.9 571.5 81.7 571.6C81.6 571.8 80.6 571.7 79.6 571.4C78.6 571.1 73.7 570.8 68.8 570.8C61.7 570.8 59.1 571 56.8 571.6C51.7 573.1 47.9 575.2 45 578.1C41.4 581.7 41.2 582 39.5 585.6C36.1 593.5 36 594.8 36 633.9L36 668.5L18 668.5L0 668.5L0 605ZM234.2 667.9C234.1 667.5 234.1 639 234.1 604.5L234.2 541.8L252.2 541.8L270.2 541.8L270.2 549.1C270.2 553.2 270.3 556.5 270.4 556.5C270.7 556.5 271.6 555.4 274.7 551.4C279.1 545.7 284.9 541.7 292.3 539.2C296.5 537.8 297.2 537.8 305 537.8C313.4 537.8 314.6 537.9 320.5 540.2C323.1 541.1 326.4 542.8 327 543.5C327.1 543.6 328.1 544.4 329.2 545.2C330.3 546 331.8 547.4 332.6 548.2C334.3 549.9 339 556.8 339 557.6C339 558.4 339.9 558 340.4 556.8C341 555.5 342 554.3 345.7 550.1C350.1 545.3 356.6 541.4 364.5 538.9C367.9 537.9 369.2 537.8 377.2 537.8C384.1 537.8 386.9 538 389 538.6C390.5 539.1 392.3 539.6 393 539.8C396.3 540.8 402 544.4 405.4 547.7C411.5 553.5 414.7 559.5 417.1 569.2C418.2 573.7 418.2 574.5 418.4 621.1L418.6 668.5L400.6 668.5L382.6 668.5L382.4 625.9C382.1 579.6 382.2 580.7 379.3 574.8C377.8 571.7 375.6 569.6 372.3 568.1C370.3 567.1 369 566.9 365.5 566.9C361.6 566.9 360.8 567.1 357.9 568.4C352.6 570.9 348.6 575.9 346.3 582.8C344.3 588.5 344 593.7 344 631.9L344 668.5L326.3 668.5L308.6 668.5L308.4 625.9C308.1 580.1 308.2 581.2 305.5 575.4C304.2 572.4 301.2 569.5 298.1 568C296.3 567.1 294.9 566.9 291.2 566.9C287 566.9 286.4 567 283.5 568.5C278 571.5 274.7 575.7 271.9 583.5L270.8 586.8L270.5 627.5L270.2 668.2L252.4 668.4C238.3 668.5 234.4 668.4 234.2 667.9ZM152.3 645.9C156.1 644.7 160.7 641.8 163.6 638.9C169.4 633 172 626.3 172 617.2L172 612L167.9 612C164.1 612 155 612.9 150.5 613.7C138.5 615.9 131.2 620 128 626.2C126.9 628.3 126.8 629.4 126.8 633.2C126.8 637.3 126.9 638 128.1 640.1C130.4 643.9 134.3 646.3 139.2 647C142.9 647.6 148.8 647.1 152.3 645.9ZM640.3 645.9C647.4 643.6 653.8 638 657.2 630.9C659.3 626.6 660 623 660 617.2L660 612L655.9 612C652.1 612 641.5 613.1 638.2 613.8C625.6 616.4 619.2 620 616 626.2C614.9 628.3 614.8 629.4 614.8 633.2C614.8 637.3 614.9 638 616.1 640.1C618.4 643.9 622.3 646.3 627.2 647C630.9 647.6 636.8 647.1 640.3 645.9ZM509.6 642.3C517.1 640 521.9 634.6 524.7 625.2C526.7 618.6 527.1 614.9 527.1 605.3C527.2 592.9 526 586.4 522.6 579.2C518.3 570.3 510.8 566 501 566.8C491 567.7 483.8 575.1 480.9 587.2C480.1 590.8 479 600.6 479 604.5C479 611.1 480.3 620.7 481.8 625.5C485.5 636.8 492.8 642.8 503 642.9C505.3 643 508.3 642.7 509.6 642.3ZM545.8 461.5L463.2 461.2L459.5 460.1C454.6 458.6 452.9 458 449 456.4C445.5 454.9 442.7 453.5 440.5 452.1C439.2 451.4 437.1 450.1 435.7 449.3C434.4 448.5 433.1 447.7 433 447.5C432.9 447.3 432 446.7 431 446C430 445.3 429.1 444.7 429 444.5C428.9 444.4 427.9 443.6 426.9 442.9C425.9 442.1 424.8 441.2 424.4 440.9C424 440.5 422 438.8 420 437C411.2 429.3 399.1 415.9 389.3 403C387.4 400.4 385.5 397.9 385.2 397.5C384.8 397.1 383.5 395.3 382.2 393.5C380.9 391.7 379.2 389.5 378.5 388.5C377.8 387.5 376 385 374.5 382.8C373 380.7 370 376.4 367.9 373.3C365.7 370.3 362 364.8 359.5 361.2C357 357.7 353.7 352.9 352.1 350.7C350.5 348.4 348.3 345.2 347.1 343.5C345.8 341.8 344.6 340 344.2 339.5C343.8 339.1 342.5 337.3 341.2 335.5C339.9 333.7 338.7 332.1 338.5 332C338.3 331.9 337.4 330.7 336.5 329.5C335.6 328.3 334.7 327.1 334.5 327C334.4 326.9 333.1 325.4 331.8 323.8C328.2 319.4 319.4 310.6 316.6 308.5C315.3 307.5 314 306.5 313.6 306.1C313.2 305.8 312.7 305.5 312.5 305.5C312.3 305.5 311.8 305.2 311.4 304.9C310.7 304.2 306.7 302.2 303.3 300.8C300 299.4 288.9 299 255.5 299C216.8 299 207.7 298.5 192.2 295.3C190.3 294.9 188 294.3 187 294.1C186 293.8 183.9 293.2 182.2 292.8C180.6 292.3 178.8 291.8 178.2 291.6C176.7 290.9 174.6 290 173.4 289.6C171 288.7 167.2 286.7 167.1 286.4C167 286.2 166.7 286 166.4 286C166 286 161.7 283.2 161 282.5C160.9 282.3 159.7 281.4 158.5 280.5C152.2 275.7 136.3 259.7 127 249C125.2 246.9 123.6 245.1 123.5 245C123.4 244.9 122.2 243.5 121 242C119.8 240.5 118.6 239.1 118.5 239C118.4 238.9 117.2 237.5 116 236C114.8 234.5 113.6 233.1 113.5 233C113.3 232.9 112.4 231.7 111.5 230.5C110.6 229.3 109.7 228.1 109.5 228C109.3 227.9 108.4 226.7 107.5 225.5C106.5 224.3 105.5 222.9 105.1 222.5C104.8 222.1 103.4 220.3 102 218.5C100.6 216.7 99.2 214.9 98.9 214.5C98.2 213.7 82.9 193.3 80 189.2C75.3 182.9 69 173.6 69 173.1C69 172.7 77.3 172.7 127.5 173.5C146.9 173.8 180.9 174.2 203 174.5C225.1 174.8 257.1 175.3 274 175.5C290.9 175.8 312.9 176 322.9 176C345.9 176 351.8 176.5 366.2 180C370.9 181.1 381.6 184.5 384.2 185.7C385.1 186.1 386.8 186.8 388 187.3C392.8 189.2 403.8 195.2 409.4 199C416.4 203.7 418.7 205.7 425 212C430.5 217.5 430.5 217.5 439.5 228.5C443.2 233 446.3 236.9 446.5 237C446.6 237.1 448.7 239.6 451 242.5C453.3 245.4 455.6 248.2 456.1 248.8C456.6 249.3 459.2 252.6 462 256C464.8 259.4 467.4 262.7 467.9 263.2C468.4 263.8 470.7 266.6 473 269.5C475.3 272.4 477.4 274.9 477.5 275C477.7 275.1 479.7 277.6 482 280.5C484.3 283.4 486.6 286.2 487.1 286.8C487.6 287.3 490.2 290.6 493 294C495.8 297.4 498.4 300.7 498.9 301.2C499.4 301.8 501.7 304.6 504 307.5C506.3 310.4 508.6 313.2 509.1 313.8C509.6 314.3 512.2 317.6 515 321C517.8 324.4 520.4 327.7 520.9 328.2C521.4 328.8 523.7 331.6 526 334.5C528.3 337.4 530.6 340.2 531.1 340.8C531.8 341.6 537.6 348.7 543.5 356C549.4 363.3 555.2 370.4 555.9 371.2C556.4 371.8 558.7 374.6 561 377.5C563.3 380.4 565.3 382.9 565.5 383C565.6 383.1 566.6 384.3 567.5 385.5C568.4 386.7 569.4 387.9 569.5 388C569.7 388.1 571.7 390.6 574 393.5C576.3 396.4 578.6 399.2 579.1 399.8C579.8 400.6 585.6 407.7 591.5 415C597.4 422.3 603.2 429.4 603.9 430.2C604.4 430.8 606.7 433.6 609 436.5C611.3 439.4 613.3 441.9 613.5 442C613.6 442.1 614.6 443.3 615.5 444.5C616.4 445.7 617.4 446.9 617.5 447C617.7 447.1 619.7 449.6 622 452.5C624.3 455.4 626.6 458.2 627.2 458.8C628.4 460.1 629.1 461.4 628.6 461.6C628.4 461.7 591.1 461.6 545.8 461.5ZM502.5 287.4C502.3 286.8 499.1 278.9 495.6 270C489.4 254.6 475.7 220.6 472.8 213.5C457.9 177.5 456 173.7 449.1 164.6C445.4 159.8 436.2 150.2 432.6 147.5C431.3 146.5 430.1 145.6 430 145.4C429.9 145.3 427.4 143.6 424.5 141.7C412.6 133.9 401.2 129.6 387 127.5C380.4 126.6 345.6 126 291.2 126C238.8 126 212.4 125.5 208 124.4C203.7 123.4 197.7 120.8 194.2 118.4C193 117.6 191.8 117 191.6 117C191.3 117 191 116.8 190.9 116.6C190.8 116.4 189.3 115.2 187.5 114C185.7 112.8 184.1 111.7 184 111.5C183.9 111.4 182.7 110.4 181.5 109.5C180.3 108.5 179 107.5 178.6 107.2C178.3 106.8 176.9 105.7 175.6 104.6C169.4 99.7 149.8 80.2 141 70.2C139.8 68.9 137.8 66.6 136.5 65.2C135.3 63.9 133 61.3 131.5 59.5C130 57.7 128.7 56.1 128.5 56C128.4 55.9 127 54.3 125.5 52.5C124 50.7 122.7 49.1 122.5 49C122.2 48.7 118.3 43.9 117 42.3C116.6 41.8 115.6 40.5 114.7 39.5C113 37.5 103.4 25.5 101.5 23C100.8 22.1 99.2 20.1 98 18.5C95.5 15.3 95 14.6 88.9 6.6C86.5 3.4 84.5 0.6 84.5 0.3C84.5 0 92.7 -0 106.4 0.2C149.3 0.9 242.9 1.5 352.5 1.8C422.5 1.9 465.4 2.2 468.2 2.5C476.7 3.5 486.7 5.3 492.5 6.8C494 7.3 496 7.8 497 8C499.7 8.6 509.7 12 510.2 12.5C510.5 12.8 511 13 511.4 13C514 13 537.9 25.9 540 28.5C540.1 28.7 541 29.3 542 30C543 30.7 543.9 31.3 544 31.5C544.1 31.6 545.4 32.6 546.8 33.7C550.1 36.4 560.2 46.5 563.3 50.2C571 59.7 577.4 69.7 582.7 80.7C585 85.5 590 97.9 590 98.8C590 99.2 590.2 99.9 590.5 100.4C590.9 101.2 592.2 105.2 593 108.2C593.2 109.1 593.8 111 594.2 112.5C595.5 117.4 596.7 123.4 598.3 133C599.9 142.5 599.5 161.8 597.5 171.2C597.3 172.3 596.8 174.6 596.5 176.2C594.8 184.2 591.3 196 588.7 202C588.2 203 587.7 204.2 587.5 204.8C585 211 576 227.4 574.1 229.4C573.8 229.8 573.5 230.3 573.5 230.5C573.5 230.7 573.2 231.2 572.9 231.6C572.5 232 571.7 233 571 234C570.3 235 569.7 235.9 569.5 236C569.3 236.1 568.7 237 568 238C567.3 239 566.5 240 566.2 240.4C565.8 240.7 564.7 242.1 563.7 243.4C557.9 250.6 543 264.3 532.9 271.6C525.3 277.1 505.5 288.5 503.5 288.5C503.2 288.5 502.8 288 502.5 287.4Z" />
-        </svg>
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+
+<body>
+
+<a class="sr-only" href="#main" data-i18n="skip">Saltar al contenido</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="top__logo" href="#main" aria-label="Rampa, inicio de la página" data-i18n-label="logo"><img src="/invite/assets/logo-gradient.svg" alt="Rampa" width="96" height="26"></a>
+    <a class="btn btn--primary btn--sm" data-signup href="#" data-i18n="download">Descarga la app</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ===== HERO: who invites you + code + one action ===== -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero__grid">
+      <div>
+        <div class="hero__head">
+          <div class="hero__who" data-has-name hidden>
+            <div class="avatar" aria-hidden="true" data-initial></div>
+            <p><strong data-name-full></strong><span data-i18n="who">usa Rampa y quiere que te unas</span></p>
+          </div>
+          <h1 class="h1" id="hero-title" data-title data-i18n-html="title">Te invitaron <em>a&nbsp;Rampa</em></h1>
+        </div>
+        <p class="lead" data-i18n="lead">Tu dinero y tu familia, más cerca. Envía, recibe y guarda dinero entre países desde una sola app.</p>
       </div>
-      <h1 id="heading">Te invitaron a Rampa</h1>
-      <p id="message">
-        Mueve y ahorra tu dinero entre países y sigue presente en la vida de
-        los que amas.
-      </p>
 
-      <section class="card" id="code-card" hidden aria-labelledby="code-label">
-        <p id="code-label">Tu código de invitación</p>
-        <p class="code" id="code"></p>
-        <button type="button" class="outline" id="copy-button">
-          <svg id="copy-icon" width="18" height="18" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="1.8"
-            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path id="copy-icon-path" d="M9 9h11v11H9zM5 15V5h10" />
-          </svg>
-          <span id="copy-label">Copiar código</span>
-        </button>
-      </section>
+      <div class="code-card" id="codigo">
+        <p class="label" data-code-label data-needs-code>Tu código de invitación</p>
+        <div class="code-card__row" data-needs-code>
+          <span class="code" data-code></span>
+          <button class="copy" type="button" data-copy aria-label="Copiar código" data-i18n-label="copyCode">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg>
+            <span data-copy-text>Copiar</span>
+          </button>
+        </div>
+        <a class="btn btn--primary btn--block" data-signup data-hero-cta href="#" data-i18n="download">Descarga la app</a>
+        <p class="code-card__hint" data-needs-code data-i18n="hint">La app es gratis. Copia el código y pégalo al crear tu cuenta.</p>
+        <p class="sr-only" role="status" aria-live="polite" data-copy-status></p>
+      </div>
+    </div>
+  </section>
 
-      <p class="hint" id="hint" hidden>
-        Copia el código y descarga Rampa. Al terminar tu registro, la app te lo
-        pedirá.
-      </p>
+  <!-- ===== in-page navigation ===== -->
+  <nav class="chips" aria-label="Secciones de la página" data-i18n-label="sections">
+    <ul>
+      <li><a href="#que-puedes-hacer" data-i18n="chipFeatures">Qué puedes hacer</a></li>
+      <li><a href="#costes" data-i18n="chipCosts">Costes</a></li>
+      <li><a href="#como-empezar" data-i18n="chipSteps">Cómo empezar</a></li>
+      <li><a href="#preguntas" data-i18n="chipFaq">Preguntas</a></li>
+    </ul>
+  </nav>
 
-      <a class="button primary" id="download" href="#">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-          stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
-        </svg>
-        <span id="download-label">Descargar Rampa</span>
-      </a>
+  <!-- ===== WHAT YOU CAN DO ===== -->
+  <section class="block" id="que-puedes-hacer" aria-labelledby="t-features">
+    <div class="wrap features-grid">
+      <div>
+        <h2 class="h2" id="t-features" data-i18n-html="featuresTitle">Todo tu dinero, <em>en una app</em></h2>
+        <p class="section-intro" data-i18n="featuresIntro">Para quien envía desde fuera de Colombia y para la familia que recibe en casa.</p>
 
-      <!-- Phones only: opens the installed app with the code (see openApp). -->
-      <a class="button outline" id="open-app" href="#" hidden>
-        <span id="open-app-label">Ya tengo Rampa: abrir la app</span>
-      </a>
-    </main>
+        <ul class="features">
+          <li class="feature">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 3 10 14"/><path d="m21 3-7 18-4-7-7-4 18-7Z"/></svg></span>
+            <div><h3 data-i18n="f1Title">Envía a los tuyos</h3><p data-i18n="f1Body">Entre usuarios de Rampa, gratis y al instante.</p></div>
+          </li>
+          <li class="feature">
+            <span class="icon icon--blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/></svg></span>
+            <div><h3 data-i18n="f2Title">Abre una cuenta virtual en USA o Europa y recibe pagos del exterior</h3><p data-i18n="f2Body">En dólares, para cobrar por ACH, Wire o SWIFT, o en euros, para recibir transferencias SEPA.</p></div>
+          </li>
+          <li class="feature">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></svg></span>
+            <div><h3 data-i18n="f3Title">Retira a tu banco</h3><p data-i18n="f3Body">En Colombia, México, Chile, Argentina, Perú y muchos países más.</p></div>
+          </li>
+          <li class="feature">
+            <span class="icon icon--blue" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v4c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6"/><path d="M5 10v4c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-4"/><path d="M5 14v4c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-4"/></svg></span>
+            <div><h3 data-i18n="f4Title">Guarda en dólares digitales</h3><p data-i18n="f4Body">Carga euros, pesos o dólares y mantén tu saldo en USDC, un dólar digital.</p></div>
+          </li>
+          <li class="feature">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12c0-4 2.5-6.5 7-7 0 4.5-2.5 7-7 7Z"/><path d="M12 14c0-3-2-5-6-5.5 0 3.5 2 5.5 6 5.5Z"/></svg></span>
+            <div><h3 data-i18n="f5Title">Aparta tu ahorro con Earn</h3><p data-i18n-html="f5Body">Mueve parte de tu saldo a Earn y retíralo cuando quieras.<span class="note">El rendimiento es variable y no está garantizado.</span></p></div>
+          </li>
+          <li class="feature">
+            <span class="icon icon--blue" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><path d="M12 14.5v2"/></svg></span>
+            <div><h3 data-i18n="f6Title">Tu dinero, bajo tu control</h3><p data-i18n="f6Body">Tú autorizas cada movimiento. Rampa no puede mover tu dinero por ti.</p></div>
+          </li>
+        </ul>
+      </div>
 
-    <script>
-      // Plain static page: no cookies, no storage, no analytics, no
-      // third-party requests (TDDDG §25). Everything below runs locally; the
-      // only network use is the person tapping a store link.
-      const COPY = {
-        es: {
-          lang: "es",
-          title: "Te invitaron a Rampa",
-          heading: "Te invitaron a Rampa",
-          headingNoCode: "Únete a Rampa",
-          message:
-            "Mueve y ahorra tu dinero entre países y sigue presente en la vida de los que amas.",
-          codeLabel: "Tu código de invitación",
-          copy: "Copiar código",
-          copied: "Código copiado",
-          hint: "Copia el código y descarga Rampa. Al terminar tu registro, la app te lo pedirá.",
-          download: "Descargar Rampa",
-          openApp: "Ya tengo Rampa: abrir la app",
-        },
-        en: {
-          lang: "en",
-          title: "You've been invited to Rampa",
-          heading: "You've been invited to Rampa",
-          headingNoCode: "Join Rampa",
-          message:
-            "Move and save your money across borders, and stay present in the lives of the people you love.",
-          codeLabel: "Your invite code",
-          copy: "Copy code",
-          copied: "Code copied",
-          hint: "Copy the code and download Rampa. Once you finish signing up, the app will ask you for it.",
-          download: "Download Rampa",
-          openApp: "I already have Rampa: open the app",
-        },
-      };
-      const browserLocale = (
-        navigator.language ||
-        (navigator.languages && navigator.languages[0]) ||
-        "en"
-      ).toLowerCase();
-      const copy = browserLocale.startsWith("es") ? COPY.es : COPY.en;
+      <figure class="phone">
+        <div class="phone__frame"><img src="/invite/assets/home.webp" alt="Pantalla de inicio de la app Rampa con el saldo y los botones de enviar y recibir" data-i18n-alt="phoneAlt" width="923" height="2000" loading="lazy" decoding="async"></div>
+        <figcaption data-i18n="phoneCaption">Así se ve Rampa por dentro</figcaption>
+      </figure>
+    </div>
+  </section>
 
-      const $ = (id) => document.getElementById(id);
+  <!-- ===== COSTS ===== -->
+  <section class="block" id="costes" aria-labelledby="t-costs">
+    <div class="wrap">
+      <div class="band">
+        <h2 class="h2" id="t-costs" data-i18n-html="costsTitle">Costes <em>claros</em></h2>
+        <p class="section-intro" data-i18n="costsIntro">Sabes lo que pagas antes de confirmar. Sin letra pequeña.</p>
 
-      // Same format as the backend generator (rampa-api:
-      // src/domain/referral/referral-code.ts): REF- + 8 characters without
-      // 0, O, 1 or I. Anything else is ignored, never echoed back.
-      const REFERRAL_CODE_PATTERN = /^REF-[A-HJ-NP-Z2-9]{8}$/;
-      const rawRef = new URLSearchParams(window.location.search).get("ref");
-      const candidate = (rawRef || "").trim().toUpperCase();
-      const code = REFERRAL_CODE_PATTERN.test(candidate) ? candidate : null;
-      // The app only sends the inviter's first name. Limit it before showing
-      // it: this static page never interpolates HTML, but a bounded label
-      // prevents a malformed URL from becoming an unusable heading.
-      const rawName = new URLSearchParams(window.location.search).get("name") || "";
-      const inviterName = rawName.replace(/\s+/g, " ").trim().slice(0, 48);
+        <dl class="fees">
+          <div class="fee">
+            <dt data-i18n-html="fee1">Cargar desde tu banco<span>Desde Europa, en euros</span></dt>
+            <dd data-i18n-html="fee1Value">1&nbsp;€ + 0,6&nbsp;%</dd>
+          </div>
+          <div class="fee">
+            <dt data-i18n-html="fee2">Retirar a tu banco<span>En Latinoamérica</span></dt>
+            <dd data-i18n-html="fee2Value">1&nbsp;%</dd>
+          </div>
+          <div class="fee">
+            <dt data-i18n="fee3">Enviar entre usuarios, mantener la cuenta y usar Earn</dt>
+            <dd class="free" data-i18n="fee3Value">Gratis</dd>
+          </div>
+        </dl>
 
-      const ANDROID_PACKAGE = "com.anonymous.rampaapp";
-      // The Play Store hands `referrer` to the app after install; the app's
-      // Play Install Referrer reader takes the code from utm_campaign and
-      // prefills "Acceso con código" with it.
-      const PLAY_STORE_URL =
-        `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}` +
-        (code ? `&referrer=utm_campaign%3D${code}` : "");
-      // Apple-assigned public listing id (https://apps.apple.com/app/id6756196244).
-      // Keep in sync with the app's APP_STORE_ID (rampa-app: src/shared/config/appStore.ts).
-      const APP_STORE_ID = "6756196244";
-      const APP_STORE_URL = `https://apps.apple.com/app/id${APP_STORE_ID}`;
+        <p class="example" data-i18n-html="example">Ejemplo: si cargas <strong>200&nbsp;€</strong> desde tu banco, pagas 1&nbsp;€ + 1,20&nbsp;€ = <strong>2,20&nbsp;€</strong>. Enviarlos a otro usuario de Rampa no cuesta nada.</p>
+      </div>
+    </div>
+  </section>
 
-      // Release-readiness guard: fail loudly if the listing URL is ever missing
-      // or malformed (e.g. reverted to a generic search) instead of silently
-      // sending iOS users to the wrong destination.
-      const APP_STORE_URL_PATTERN =
-        /^https:\/\/apps\.apple\.com\/(?:[a-z]{2}\/)?app\/id\d{5,}$/;
-      if (!APP_STORE_URL_PATTERN.test(APP_STORE_URL)) {
-        throw new Error(`Invalid APP_STORE_URL: ${APP_STORE_URL}`);
-      }
+  <!-- ===== HOW TO START ===== -->
+  <section class="block" id="como-empezar" aria-labelledby="t-steps">
+    <div class="wrap">
+      <h2 class="h2" id="t-steps" data-i18n-html="stepsTitle">Empieza en <em>4 pasos</em></h2>
+      <ol class="steps">
+        <li class="step"><div><h3 data-i18n="s1Title">Descarga la app</h3><p data-i18n="s1Body">Toca «Descarga la app» e instala Rampa en tu móvil, iPhone o Android.</p></div></li>
+        <li class="step"><div><h3 data-step1 data-i18n="s2Title">Crea tu cuenta con el código</h3><p data-i18n="s2Body">Regístrate con tu correo y pega el código cuando la app te lo pida.</p></div></li>
+        <li class="step"><div><h3 data-i18n="s3Title">Verifica tu identidad</h3><p data-i18n="s3Body">Una sola vez, desde el móvil, con tu documento de identidad.</p></div></li>
+        <li class="step"><div><h3 data-i18n="s4Title">Carga dinero y úsalo</h3><p data-i18n="s4Body">Envía a los tuyos, retira a tu banco o aparta una parte en Earn.</p></div></li>
+      </ol>
+    </div>
+  </section>
 
-      // Google Play for Android phones and for desktops that can't install
-      // from the App Store: Windows, Linux ("X11; Linux", also BSD under X11)
-      // and ChromeOS ("CrOS"). Apple devices (iPhone, iPad, Mac) never carry
-      // these tokens, so they keep the App Store, which is also the fallback.
-      // `cros` needs word boundaries: "Microsoft" (Teams, Outlook in-app
-      // browsers on iOS/macOS) contains it.
-      const PLAY_STORE_PLATFORM = /android|windows|linux|x11|\bcros\b/i;
-      const userAgent = navigator.userAgent || navigator.vendor || "";
-      const usesPlayStore = PLAY_STORE_PLATFORM.test(userAgent);
+  <!-- ===== FAQ ===== -->
+  <section class="block" id="preguntas" aria-labelledby="t-faq">
+    <div class="wrap">
+      <h2 class="h2" id="t-faq" data-i18n-html="faqTitle">Preguntas <em>frecuentes</em></h2>
+      <div class="faq">
+        <details>
+          <summary data-i18n="q1">¿Qué es Rampa?</summary>
+          <div class="faq__body">
+            <p data-i18n="a1">Una app para enviar, recibir y guardar dinero entre países. Ves tu saldo en dólares y envías a tu familia en segundos.</p>
+          </div>
+        </details>
+        <details>
+          <summary data-i18n="q2">¿Rampa es un banco?</summary>
+          <div class="faq__body">
+            <p data-i18n="a2">No. Rampa no es un banco. Tu dinero está en tu propia billetera: solo tú autorizas los movimientos y Rampa no puede mover tu dinero por ti.</p>
+          </div>
+        </details>
+        <details>
+          <summary data-i18n="q3">¿Qué son los «dólares digitales» (USDC)?</summary>
+          <div class="faq__body">
+            <p data-i18n="a3">Es una versión digital del dólar estadounidense. Tu saldo se guarda así para que no pierda valor frente al dólar y puedas enviarlo al instante. No necesitas saber nada técnico para usarlo.</p>
+          </div>
+        </details>
+        <details>
+          <summary data-i18n="q4">¿Cuánto cuesta?</summary>
+          <div class="faq__body">
+            <p data-i18n-html="a4">Abrir y mantener la cuenta es gratis, igual que enviar a otros usuarios y usar Earn. Cargar desde un banco europeo cuesta 1&nbsp;€ + 0,6&nbsp;%, y retirar en Latinoamérica, un 1&nbsp;%. <a href="#costes">Ver costes</a>.</p>
+          </div>
+        </details>
+        <details>
+          <summary data-i18n="q5">¿Qué necesito para abrir la cuenta?</summary>
+          <div class="faq__body">
+            <p data-i18n="a5">Tu móvil, un correo y un documento de identidad. Verificas tu identidad una sola vez y ya puedes cargar dinero.</p>
+          </div>
+        </details>
+        <details>
+          <summary data-i18n="q6">¿Para qué sirve el código de invitación?</summary>
+          <div class="faq__body">
+            <p data-faq-code data-i18n="a6">Le dice a Rampa quién te invitó. Si la app te lo pide al registrarte, pégalo tal cual.</p>
+          </div>
+        </details>
+        <details>
+          <summary data-i18n="q7">¿Earn tiene riesgos?</summary>
+          <div class="faq__body">
+            <p data-i18n="a7">Sí. El rendimiento de Earn es variable y no está garantizado. Puedes retirar tu dinero cuando quieras. Revisa sus condiciones y riesgos en la app antes de usarlo.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
 
-      document.documentElement.lang = copy.lang;
-      $("page-title").textContent = code ? copy.title : copy.headingNoCode;
-      $("heading").textContent = code
-        ? (inviterName
-          ? (copy.lang === "es" ? `${inviterName} te invita a Rampa` : `${inviterName} invites you to Rampa`)
-          : copy.heading)
-        : copy.headingNoCode;
-      $("message").textContent = copy.message;
-      $("code-label").textContent = copy.codeLabel;
-      $("copy-label").textContent = copy.copy;
-      $("hint").textContent = copy.hint;
-      $("download-label").textContent = copy.download;
-      $("open-app-label").textContent = copy.openApp;
-      // Google Play carries the code. The App Store (iPhone, iPad, Mac)
-      // can't, hence "Copiar".
-      $("download").href = usesPlayStore ? PLAY_STORE_URL : APP_STORE_URL;
+  <!-- ===== FINAL CTA ===== -->
+  <section class="final" aria-labelledby="t-final" data-final>
+    <div class="wrap">
+      <div class="band">
+        <h2 class="h2" id="t-final" data-final-title data-i18n-html="finalTitle">¿Te unes <em>a Rampa?</em></h2>
+        <p data-i18n="finalBody">Descarga Rampa, crea tu cuenta con el código y empieza a enviar a los tuyos.</p>
+        <span class="final__code" data-code data-needs-code></span>
+        <br data-needs-code>
+        <a class="btn btn--primary btn--block" data-signup href="#" data-i18n="download">Descarga la app</a>
+      </div>
+    </div>
+  </section>
 
-      // Open the installed app through its own scheme. The app routes
-      // rampaapp://invite?ref=REF-… to the invite screen, which stores the
-      // code for "Acceso con código" (rampa-app: +native-intent.tsx).
-      // Until the domain serves App Links / Universal Links verification
-      // files, this is how an invite reaches an app that is already there.
-      const APP_SCHEME = "rampaapp";
-      const APP_PATH = "invite" + (code ? `?ref=${code}` : "");
-      // iPadOS reports itself as a Mac; touch support tells them apart.
-      const isIOS =
-        /iphone|ipad|ipod/i.test(userAgent) ||
-        (/macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1);
-      const isAndroid = /android/i.test(userAgent);
+</main>
 
-      if (isAndroid) {
-        // Chrome opens the app if it is installed and otherwise goes to the
-        // fallback URL (Play Store, which carries the code), without an error
-        // page. Browsers that don't support intent:// stay on this page.
-        const intentUrl =
-          `intent://${APP_PATH}#Intent;scheme=${APP_SCHEME};` +
-          `package=${ANDROID_PACKAGE};` +
-          `S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
-        $("open-app").href = intentUrl;
-        $("open-app").hidden = false;
-        // Not again when the person comes back to this page (back button,
-        // restored from the back/forward cache).
-        const navigation = performance.getEntriesByType("navigation")[0];
-        if (!navigation || navigation.type === "navigate") {
-          window.location.replace(intentUrl);
-        }
-      } else if (isIOS) {
-        // iOS has no fallback for a custom scheme: without the app, Safari
-        // shows an error. So only on tap, and the page stays (code + App
-        // Store) for everyone else.
-        $("open-app").href = `${APP_SCHEME}://${APP_PATH}`;
-        $("open-app").hidden = false;
-      }
+<footer>
+  <div class="wrap">
+    <img src="/invite/assets/logo-ink.svg" alt="Rampa" width="96" height="26">
+    <p data-i18n="footer">Rampa no es un banco. El rendimiento de Earn es variable y no está garantizado. Las comisiones mostradas pueden cambiar; consulta siempre el coste en la app antes de confirmar.</p>
+  </div>
+</footer>
 
-      if (code) {
-        const [body1, body2] = [code.slice(4, 8), code.slice(8)];
-        const codeEl = $("code");
-        codeEl.textContent = "";
-        const prefix = document.createElement("span");
-        prefix.className = "prefix";
-        prefix.textContent = "REF-";
-        const gap = document.createElement("span");
-        gap.className = "gap";
-        gap.setAttribute("aria-hidden", "true");
-        codeEl.append(prefix, body1, gap, body2);
-        codeEl.setAttribute("aria-label", code.split("").join(" "));
-        $("code-card").hidden = false;
-        $("hint").hidden = false;
-      }
+<!-- sticky action on phones, shown once the hero button scrolls away -->
+<div class="dock" data-dock aria-hidden="true">
+  <p class="dock__code" data-needs-code><span data-dock-label>Tu código</span><strong data-code></strong></p>
+  <a class="btn btn--primary btn--sm" data-signup href="#" tabindex="-1" data-i18n="download">Descarga la app</a>
+</div>
 
-      const COPY_ICON = "M9 9h11v11H9zM5 15V5h10";
-      const CHECK_ICON = "M5 12.5l4.5 4.5L19 7.5";
-      let resetTimer = null;
+<script>
+(() => {
+  // Plain static page: no cookies, no storage, no analytics and no
+  // third-party requests (TDDDG §25). Fonts and images come from this site;
+  // the only network use is the person tapping a store link.
 
-      const copyCode = async () => {
-        if (!code) return;
-        let copied = false;
-        try {
-          await navigator.clipboard.writeText(code);
-          copied = true;
-        } catch {
-          // Older browsers: select the code and use the legacy command.
-          const range = document.createRange();
-          range.selectNodeContents($("code"));
-          const selection = window.getSelection();
-          selection.removeAllRanges();
-          selection.addRange(range);
-          try {
-            copied = document.execCommand("copy");
-          } catch {
-            copied = false;
-          }
-        }
-        if (!copied) return;
+  // ---------- language ----------
+  // Spanish is the copy in the HTML above. English replaces it, key by key,
+  // for browsers that don't prefer Spanish. Keep both in sync when copy changes.
+  const EN_TEXT = {
+    skip: 'Skip to content',
+    download: 'Download the app',
+    who: 'uses Rampa and wants you to join',
+    lead: 'Your money and your family, closer. Send, receive and save money across countries from a single app.',
+    hint: 'The app is free. Copy the code and paste it when you create your account.',
+    chipFeatures: 'What you can do',
+    chipCosts: 'Fees',
+    chipSteps: 'How to start',
+    chipFaq: 'Questions',
+    featuresIntro: 'For those who send money from outside Colombia, and for the family receiving it at home.',
+    f1Title: 'Send to your loved ones',
+    f1Body: 'Between Rampa users, free and instant.',
+    f2Title: 'Open a virtual account in the US or Europe and get paid from abroad',
+    f2Body: 'In dollars, to get paid by ACH, Wire or SWIFT, or in euros, to receive SEPA transfers.',
+    f3Title: 'Withdraw to your bank',
+    f3Body: 'In Colombia, Mexico, Chile, Argentina, Peru and many more countries.',
+    f4Title: 'Save in digital dollars',
+    f4Body: 'Add euros, pesos or dollars and keep your balance in USDC, a digital dollar.',
+    f5Title: 'Set your savings aside with Earn',
+    f6Title: 'Your money, under your control',
+    f6Body: 'You approve every transaction. Rampa can’t move your money for you.',
+    phoneCaption: 'This is what Rampa looks like inside',
+    costsIntro: 'You know what you pay before you confirm. No fine print.',
+    fee3: 'Sending between users, keeping your account and using Earn',
+    fee3Value: 'Free',
+    s1Title: 'Download the app',
+    s1Body: 'Tap “Download the app” and install Rampa on your phone, iPhone or Android.',
+    s2Title: 'Create your account with the code',
+    s2Body: 'Sign up with your email and paste the code when the app asks for it.',
+    s3Title: 'Verify your identity',
+    s3Body: 'Just once, from your phone, with your ID document.',
+    s4Title: 'Add money and use it',
+    s4Body: 'Send to your loved ones, withdraw to your bank or set some aside in Earn.',
+    q1: 'What is Rampa?',
+    a1: 'An app to send, receive and save money across countries. You see your balance in dollars and send to your family in seconds.',
+    q2: 'Is Rampa a bank?',
+    a2: 'No. Rampa is not a bank. Your money is in your own wallet: only you approve transactions, and Rampa can’t move your money for you.',
+    q3: 'What are “digital dollars” (USDC)?',
+    a3: 'A digital version of the US dollar. Your balance is kept this way so it doesn’t lose value against the dollar and you can send it instantly. You don’t need to know anything technical to use it.',
+    q4: 'How much does it cost?',
+    q5: 'What do I need to open an account?',
+    a5: 'Your phone, an email address and an ID document. You verify your identity just once, and then you can add money.',
+    q6: 'What is the invite code for?',
+    a6: 'It tells Rampa who invited you. If the app asks for it when you sign up, paste it as it is.',
+    q7: 'Does Earn have risks?',
+    a7: 'Yes. Earn returns are variable and not guaranteed. You can withdraw your money whenever you want. Check its terms and risks in the app before using it.',
+    finalBody: 'Download Rampa, create your account with the code and start sending to your loved ones.',
+    footer: 'Rampa is not a bank. Earn returns are variable and not guaranteed. The fees shown may change; always check the cost in the app before you confirm.',
+  };
+  // Static markup only (never user input), so innerHTML is safe here.
+  const EN_HTML = {
+    title: 'You’re invited <em>to&nbsp;Rampa</em>',
+    featuresTitle: 'All your money, <em>in one app</em>',
+    f5Body: 'Move part of your balance to Earn and take it out whenever you want.<span class="note">Returns are variable and not guaranteed.</span>',
+    costsTitle: 'Clear <em>fees</em>',
+    fee1: 'Top up from your bank<span>From Europe, in euros</span>',
+    fee1Value: '€1 + 0.6%',
+    fee2: 'Withdraw to your bank<span>In Latin America</span>',
+    fee2Value: '1%',
+    example: 'Example: if you top up <strong>€200</strong> from your bank, you pay €1 + €1.20 = <strong>€2.20</strong>. Sending it to another Rampa user costs nothing.',
+    stepsTitle: 'Get started in <em>4 steps</em>',
+    faqTitle: 'Frequently asked <em>questions</em>',
+    a4: 'Opening and keeping your account is free, and so are sending to other users and using Earn. Topping up from a European bank costs €1 + 0.6%, and withdrawing in Latin America, 1%. <a href="#costes">See fees</a>.',
+    finalTitle: 'Will you join <em>Rampa?</em>',
+  };
+  const EN_LABEL = { logo: 'Rampa, top of the page', copyCode: 'Copy code', sections: 'Page sections' };
+  const EN_ALT = { phoneAlt: 'Rampa app home screen with the balance and the send and receive buttons' };
 
-        const button = $("copy-button");
-        button.className = "copied";
-        $("copy-label").textContent = copy.copied;
-        $("copy-icon-path").setAttribute("d", CHECK_ICON);
-        window.clearTimeout(resetTimer);
-        resetTimer = window.setTimeout(() => {
-          button.className = "outline";
-          $("copy-label").textContent = copy.copy;
-          $("copy-icon-path").setAttribute("d", COPY_ICON);
-        }, 2000);
-      };
-      $("copy-button").addEventListener("click", copyCode);
-    </script>
-  </body>
+  // Copy the script sets itself, in both languages.
+  const STRINGS = {
+    es: {
+      pageTitle: 'Te invitaron a Rampa',
+      titleNamed: (n) => n + ' te invita a Rampa',
+      //   keeps the last two words together in the headline.
+      titleNamedRest: ' te invita a Rampa',
+      codeOf: (n) => 'Código de ' + n,
+      step1Named: (n) => 'Crea tu cuenta con el código de ' + n,
+      faqCodeNamed: (n) => 'Le dice a Rampa que te invitó ' + n + '. Si la app te lo pide al registrarte, pégalo tal cual.',
+      photoAlt: (n) => (n ? 'Foto de ' + n : 'Foto de quien te invita'),
+      copy: 'Copiar',
+      copied: 'Copiado',
+      copyFailed: 'Mantén pulsado',
+      statusCopied: 'Código copiado',
+      statusFailed: 'No se pudo copiar. Mantén pulsado el código para copiarlo.',
+    },
+    en: {
+      pageTitle: 'You’re invited to Rampa',
+      titleNamed: (n) => n + ' invites you to Rampa',
+      titleNamedRest: ' invites you to Rampa',
+      codeOf: (n) => n + '’s code',
+      step1Named: (n) => 'Create your account with ' + n + '’s code',
+      faqCodeNamed: (n) => 'It tells Rampa that ' + n + ' invited you. If the app asks for it when you sign up, paste it as it is.',
+      photoAlt: (n) => (n ? 'Photo of ' + n : 'Photo of the person inviting you'),
+      copy: 'Copy',
+      copied: 'Copied',
+      copyFailed: 'Press and hold',
+      statusCopied: 'Code copied',
+      statusFailed: 'Couldn’t copy. Press and hold the code to copy it.',
+    },
+  };
+
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => document.querySelectorAll(s);
+
+  const browserLocale = (navigator.language || (navigator.languages && navigator.languages[0]) || 'en').toLowerCase();
+  const lang = browserLocale.startsWith('es') ? 'es' : 'en';
+  const t = STRINGS[lang];
+  document.documentElement.lang = lang;
+  if (lang === 'en') {
+    $$('[data-i18n]').forEach((el) => { const v = EN_TEXT[el.dataset.i18n]; if (v) el.textContent = v; });
+    $$('[data-i18n-html]').forEach((el) => { const v = EN_HTML[el.dataset.i18nHtml]; if (v) el.innerHTML = v; });
+    $$('[data-i18n-label]').forEach((el) => { const v = EN_LABEL[el.dataset.i18nLabel]; if (v) el.setAttribute('aria-label', v); });
+    $$('[data-i18n-alt]').forEach((el) => { const v = EN_ALT[el.dataset.i18nAlt]; if (v) el.alt = v; });
+    $('[data-code-label]').textContent = 'Your invite code';
+    $('[data-dock-label]').textContent = 'Your code';
+    $('[data-copy-text]').textContent = t.copy;
+    document.title = t.pageTitle;
+  }
+
+  // ---------- invite code ----------
+  // Same format as the backend generator (rampa-api:
+  // src/domain/referral/referral-code.ts): REF- + 8 characters without
+  // 0, O, 1 or I. Anything else is ignored, never echoed back.
+  const REFERRAL_CODE_PATTERN = /^REF-[A-HJ-NP-Z2-9]{8}$/;
+  const params = new URLSearchParams(location.search);
+  const rawCode = (params.get('ref') || '').trim().toUpperCase();
+  const code = REFERRAL_CODE_PATTERN.test(rawCode) ? rawCode : '';
+
+  if (code) $$('[data-code]').forEach((el) => { el.textContent = code; });
+  else $$('[data-needs-code]').forEach((el) => { el.hidden = true; });
+
+  // ---------- where "Descarga la app" goes ----------
+  const ANDROID_PACKAGE = 'com.anonymous.rampaapp';
+  // The Play Store hands `referrer` to the app after install; the app's
+  // Play Install Referrer reader takes the code from utm_campaign and
+  // prefills "Acceso con código" with it.
+  const PLAY_STORE_URL =
+    'https://play.google.com/store/apps/details?id=' + ANDROID_PACKAGE +
+    (code ? '&referrer=utm_campaign%3D' + code : '');
+  // Apple-assigned public listing id (https://apps.apple.com/app/id6756196244).
+  // Keep in sync with the app's APP_STORE_ID (rampa-app: src/shared/config/appStore.ts).
+  const APP_STORE_ID = '6756196244';
+  const APP_STORE_URL = 'https://apps.apple.com/app/id' + APP_STORE_ID;
+  // Release-readiness guard: fail loudly if the listing URL is ever missing
+  // or malformed (e.g. reverted to a generic search) instead of silently
+  // sending iOS users to the wrong destination.
+  if (!/^https:\/\/apps\.apple\.com\/(?:[a-z]{2}\/)?app\/id\d{5,}$/.test(APP_STORE_URL)) {
+    throw new Error('Invalid APP_STORE_URL: ' + APP_STORE_URL);
+  }
+  // Google Play for Android phones and for desktops that can't install
+  // from the App Store: Windows, Linux ("X11; Linux", also BSD under X11)
+  // and ChromeOS ("CrOS"). Apple devices (iPhone, iPad, Mac) never carry
+  // these tokens, so they keep the App Store, which is also the fallback.
+  // `cros` needs word boundaries: "Microsoft" (Teams, Outlook in-app
+  // browsers on iOS/macOS) contains it.
+  const PLAY_STORE_PLATFORM = /android|windows|linux|x11|\bcros\b/i;
+  const usesPlayStore = PLAY_STORE_PLATFORM.test(navigator.userAgent || navigator.vendor || '');
+  // Google Play carries the code. The App Store can't, hence "Copiar".
+  $$('[data-signup]').forEach((a) => { a.href = usesPlayStore ? PLAY_STORE_URL : APP_STORE_URL; });
+
+  // ---------- inviter name ----------
+  // The app sends the inviter's first name. Keep only letters, spaces,
+  // apostrophes and hyphens; first word only, max 20 chars. Always set as
+  // text, never as HTML.
+  const rawName = (params.get('name') || '').normalize('NFC').replace(/[^\p{L}\s'’-]/gu, '').trim();
+  const first = rawName.split(/\s+/)[0] || '';
+  const name = first ? (first[0].toLocaleUpperCase(lang) + first.slice(1)).slice(0, 20) : '';
+
+  // Optional inviter photo: ?photo=<path on this site>, URL-encoded. Only
+  // same-origin images, so the page never loads from a third party and a
+  // crafted link can't put an arbitrary picture under Rampa's name.
+  // With a photo the hero becomes a photo card; if it fails to load, the plain hero returns.
+  const photoUrl = (() => {
+    const raw = (params.get('photo') || '').trim();
+    if (!raw) return '';
+    try {
+      const u = new URL(raw, location.href);
+      return u.origin === location.origin ? u.href : '';
+    } catch (_) { return ''; }
+  })();
+
+  if (name) {
+    $('[data-has-name]').hidden = false;
+    $('[data-initial]').textContent = name[0];
+    $('[data-name-full]').textContent = name;
+
+    const title = $('[data-title]');
+    title.textContent = '';
+    const em = document.createElement('em');
+    em.textContent = name;
+    title.append(em, t.titleNamedRest);
+
+    $('[data-code-label]').textContent = t.codeOf(name);
+    $('[data-dock-label]').textContent = t.codeOf(name);
+    $('[data-step1]').textContent = t.step1Named(name);
+    $('[data-faq-code]').textContent = t.faqCodeNamed(name);
+    document.title = t.titleNamed(name);
+  }
+
+  if (photoUrl) {
+    const hero = $('.hero');
+    const img = document.createElement('img');
+    img.className = 'hero__photo';
+    img.alt = t.photoAlt(name);
+    img.decoding = 'async';
+    img.referrerPolicy = 'no-referrer';
+    img.onerror = () => { hero.classList.remove('hero--photo'); img.remove(); };
+    img.src = photoUrl;
+    $('.hero__head').prepend(img);
+    hero.classList.add('hero--photo');
+  }
+
+  // Copy the code
+  const copyBtn = $('[data-copy]');
+  const copyText = $('[data-copy-text]');
+  const status = $('[data-copy-status]');
+  let resetTimer;
+  copyBtn.addEventListener('click', async () => {
+    if (!code) return;
+    let ok = false;
+    try { await navigator.clipboard.writeText(code); ok = true; } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = code; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { ok = document.execCommand('copy'); } catch (_) {}
+      ta.remove();
+    }
+    copyText.textContent = ok ? t.copied : t.copyFailed;
+    status.textContent = ok ? t.statusCopied : t.statusFailed;
+    copyBtn.toggleAttribute('data-done', ok);
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => { copyText.textContent = t.copy; copyBtn.removeAttribute('data-done'); status.textContent = ''; }, 2200);
+  });
+
+  // FAQ accordion: one answer open at a time, height animates open and closed.
+  // Interruptible: a new click starts from the current height. Reduced motion gets a quick fade.
+  const faqItems = [...$$('.faq details')];
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const running = new WeakMap();
+  const EASE = 'cubic-bezier(.2, .8, .2, 1)';
+
+  const setOpen = (d, opening) => {
+    const body = d.querySelector('.faq__body');
+    const from = d.open ? body.getBoundingClientRect().height : 0;
+    const prev = running.get(d);
+    if (prev) prev.cancel();
+    d.classList.toggle('is-open', opening);
+    if (opening) d.open = true;
+
+    const to = opening ? body.scrollHeight : 0;
+    const frames = reduceMotion.matches
+      ? [{ opacity: opening ? 0 : 1 }, { opacity: opening ? 1 : 0 }]
+      : [{ height: from + 'px', opacity: opening ? 0 : 1 }, { height: to + 'px', opacity: opening ? 1 : 0 }];
+    const anim = body.animate(frames, {
+      duration: reduceMotion.matches ? 120 : (opening ? 260 : 200),
+      easing: EASE,
+      fill: 'forwards',
+    });
+    running.set(d, anim);
+    anim.onfinish = () => {
+      if (!opening) d.open = false;
+      anim.cancel();
+      running.delete(d);
+    };
+  };
+
+  faqItems.forEach((d) => {
+    d.querySelector('summary').addEventListener('click', (e) => {
+      e.preventDefault();
+      const opening = !d.classList.contains('is-open');
+      if (opening) faqItems.forEach((o) => { if (o !== d && o.classList.contains('is-open')) setOpen(o, false); });
+      setOpen(d, opening);
+    });
+  });
+
+  // Sticky bottom action: shown whenever the hero button isn't fully on screen
+  // (scrolled past, or below the fold on short phones), hidden once the final CTA is in view.
+  const dock = $('[data-dock]');
+  const dockLink = dock.querySelector('a');
+  const heroCta = $('[data-hero-cta]');
+  const finalCta = $('[data-final]');
+  let dockFrame = 0;
+  const syncDock = () => {
+    dockFrame = 0;
+    const vh = window.innerHeight;
+    const h = heroCta.getBoundingClientRect();
+    const heroVisible = h.top >= 0 && h.bottom <= vh;
+    const finalReached = finalCta.getBoundingClientRect().top < vh * 0.8;
+    const show = !heroVisible && !finalReached;
+    dock.toggleAttribute('data-show', show);
+    dock.setAttribute('aria-hidden', String(!show));
+    dockLink.tabIndex = show ? 0 : -1;
+  };
+  const queueDock = () => { if (!dockFrame) dockFrame = requestAnimationFrame(syncDock); };
+  window.addEventListener('scroll', queueDock, { passive: true });
+  window.addEventListener('resize', queueDock);
+  window.addEventListener('load', queueDock); // fonts and images can move the button
+  syncDock();
+
+  if (!('IntersectionObserver' in window)) return;
+
+  // Section chips: mark the section in view and keep its chip visible.
+  const links = [...$$('.chips a')];
+  const byId = new Map(links.map((a) => [a.getAttribute('href').slice(1), a]));
+  const setCurrent = (id) => {
+    links.forEach((a) => a.removeAttribute('aria-current'));
+    const a = byId.get(id);
+    if (!a) return;
+    a.setAttribute('aria-current', 'true');
+    const ul = a.parentElement.parentElement;
+    const left = a.offsetLeft - 16;
+    if (left < ul.scrollLeft || a.offsetLeft + a.offsetWidth > ul.scrollLeft + ul.clientWidth) ul.scrollTo({ left, behavior: 'smooth' });
+  };
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) setCurrent(e.target.id); });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  byId.forEach((_, id) => spy.observe(document.getElementById(id)));
+})();
+</script>
+</body>
 </html>
