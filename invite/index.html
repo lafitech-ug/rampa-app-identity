@@ -441,11 +441,11 @@
 
         <dl class="fees">
           <div class="fee">
-            <dt data-i18n-html="fee1">Cargar o retirar con tu banco<span>En Europa, en euros</span></dt>
+            <dt data-i18n-html="fee1">Tu banco en Europa<span>Cargar o retirar, en euros</span></dt>
             <dd data-i18n-html="fee1Value">1&nbsp;€ + 0,6&nbsp;%</dd>
           </div>
           <div class="fee">
-            <dt data-i18n-html="fee2">Cargar o retirar con tu banco<span>En Latinoamérica</span></dt>
+            <dt data-i18n-html="fee2">Tu banco en Latinoamérica<span>Cargar o retirar</span></dt>
             <dd data-i18n-html="fee2Value">1&nbsp;%</dd>
           </div>
           <div class="fee">
@@ -616,9 +616,9 @@
     featuresTitle: 'All your money, <em>in one app</em>',
     f5Body: 'Move part of your balance to Earn and take it out whenever you want.<span class="note">Returns are variable and not guaranteed.</span>',
     costsTitle: 'Clear <em>fees</em>',
-    fee1: 'Top up or withdraw with your bank<span>In Europe, in euros</span>',
+    fee1: 'Your bank in Europe<span>Top up or withdraw, in euros</span>',
     fee1Value: '€1 + 0.6%',
-    fee2: 'Top up or withdraw with your bank<span>In Latin America</span>',
+    fee2: 'Your bank in Latin America<span>Top up or withdraw</span>',
     fee2Value: '1%',
     example: 'Example: if you top up <strong>€200</strong> from your bank in Europe, you pay €1 + €1.20 = <strong>€2.20</strong>. Sending it to another Rampa user costs nothing.',
     stepsTitle: 'Get started in <em>4 steps</em>',
@@ -642,9 +642,10 @@
       photoAlt: (n) => (n ? 'Foto de ' + n : 'Foto de quien te invita'),
       copy: 'Copiar',
       copied: 'Copiado',
-      copyFailed: 'Mantén pulsado',
       statusCopied: 'Código copiado',
+      // Failed copy: touch screens long-press the code, mouse/trackpad select it.
       statusFailed: 'No se pudo copiar. Mantén pulsado el código para copiarlo.',
+      statusFailedPointer: 'No se pudo copiar. Selecciona el código y cópialo.',
     },
     en: {
       pageTitle: 'You’re invited to Rampa',
@@ -656,9 +657,9 @@
       photoAlt: (n) => (n ? 'Photo of ' + n : 'Photo of the person inviting you'),
       copy: 'Copy',
       copied: 'Copied',
-      copyFailed: 'Press and hold',
       statusCopied: 'Code copied',
       statusFailed: 'Couldn’t copy. Press and hold the code to copy it.',
+      statusFailedPointer: 'Couldn’t copy. Select the code and copy it.',
     },
   };
 
@@ -790,13 +791,16 @@
       try { ok = document.execCommand('copy'); } catch (_) {}
       ta.remove();
     }
-    copyText.textContent = ok ? t.copied : t.copyFailed;
-    status.textContent = ok ? t.statusCopied : t.statusFailed;
+    const failedText = window.matchMedia('(pointer: coarse)').matches ? t.statusFailed : t.statusFailedPointer;
+    // On failure the label stays "Copiar": the hint below says what to do, and a
+    // longer label would push the button over the code on narrow cards.
+    copyText.textContent = ok ? t.copied : t.copy;
+    status.textContent = ok ? t.statusCopied : failedText;
     copyBtn.toggleAttribute('data-done', ok);
     copyBtn.toggleAttribute('data-failed', !ok);
     // Visible on every screen size (the phone button is icon-only): tell the
-    // person to press and hold the code instead.
-    hint.textContent = ok ? hintText : t.statusFailed;
+    // person how to copy the code by hand.
+    hint.textContent = ok ? hintText : failedText;
     hint.toggleAttribute('data-failed', !ok);
     clearTimeout(resetTimer);
     resetTimer = setTimeout(() => {
