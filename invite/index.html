@@ -177,6 +177,7 @@
     }
     .copy svg { flex: none; width: 18px; height: 18px; }
     .copy[data-done] { color: #0E7A35; border-color: rgba(23, 198, 83, .4); background: rgba(23, 198, 83, .1); }
+    .copy[data-failed] { color: #B54708; border-color: rgba(247, 144, 9, .45); background: rgba(247, 144, 9, .1); }
     /* phones: icon-only round button. Must come after the base .copy rules,
        or their padding squeezes the icon inside the 44px circle. */
     @media (max-width: 419px) {
@@ -186,6 +187,8 @@
       .copy svg { width: 22px; height: 22px; }
     }
     .code-card__hint { margin-top: 12px; font-size: 13px; line-height: 1.45; color: var(--graphite); text-align: center; }
+    /* a failed copy says so here: on phones the copy button has no visible text */
+    .code-card__hint[data-failed] { color: #B54708; font-weight: 600; }
 
     /* ===== section chips nav ===== */
     .chips {
@@ -371,7 +374,7 @@
           </button>
         </div>
         <a class="btn btn--primary btn--block" data-signup data-hero-cta href="#" data-i18n="download">Descarga la app</a>
-        <p class="code-card__hint" data-needs-code data-i18n="hint">La app es gratis. Copia el código y pégalo al crear tu cuenta.</p>
+        <p class="code-card__hint" data-needs-code data-copy-hint data-i18n="hint">La app es gratis. Copia el código y pégalo al crear tu cuenta.</p>
         <p class="sr-only" role="status" aria-live="polite" data-copy-status></p>
       </div>
     </div>
@@ -442,7 +445,7 @@
             <dd data-i18n-html="fee1Value">1&nbsp;€ + 0,6&nbsp;%</dd>
           </div>
           <div class="fee">
-            <dt data-i18n-html="fee2">Retirar o cargar con tu banco<span>En Latinoamérica</span></dt>
+            <dt data-i18n-html="fee2">Cargar o retirar con tu banco<span>En Latinoamérica</span></dt>
             <dd data-i18n-html="fee2Value">1&nbsp;%</dd>
           </div>
           <div class="fee">
@@ -615,7 +618,7 @@
     costsTitle: 'Clear <em>fees</em>',
     fee1: 'Top up or withdraw with your bank<span>In Europe, in euros</span>',
     fee1Value: '€1 + 0.6%',
-    fee2: 'Withdraw or top up with your bank<span>In Latin America</span>',
+    fee2: 'Top up or withdraw with your bank<span>In Latin America</span>',
     fee2Value: '1%',
     example: 'Example: if you top up <strong>€200</strong> from your bank in Europe, you pay €1 + €1.20 = <strong>€2.20</strong>. Sending it to another Rampa user costs nothing.',
     stepsTitle: 'Get started in <em>4 steps</em>',
@@ -774,6 +777,8 @@
   const copyBtn = $('[data-copy]');
   const copyText = $('[data-copy-text]');
   const status = $('[data-copy-status]');
+  const hint = $('[data-copy-hint]');
+  const hintText = hint.textContent; // already in the page language
   let resetTimer;
   copyBtn.addEventListener('click', async () => {
     if (!code) return;
@@ -788,8 +793,20 @@
     copyText.textContent = ok ? t.copied : t.copyFailed;
     status.textContent = ok ? t.statusCopied : t.statusFailed;
     copyBtn.toggleAttribute('data-done', ok);
+    copyBtn.toggleAttribute('data-failed', !ok);
+    // Visible on every screen size (the phone button is icon-only): tell the
+    // person to press and hold the code instead.
+    hint.textContent = ok ? hintText : t.statusFailed;
+    hint.toggleAttribute('data-failed', !ok);
     clearTimeout(resetTimer);
-    resetTimer = setTimeout(() => { copyText.textContent = t.copy; copyBtn.removeAttribute('data-done'); status.textContent = ''; }, 2200);
+    resetTimer = setTimeout(() => {
+      copyText.textContent = t.copy;
+      copyBtn.removeAttribute('data-done');
+      copyBtn.removeAttribute('data-failed');
+      hint.textContent = hintText;
+      hint.removeAttribute('data-failed');
+      status.textContent = '';
+    }, ok ? 2200 : 6000);
   });
 
   // FAQ accordion: one answer open at a time, height animates open and closed.
