@@ -168,12 +168,6 @@
       font-family: var(--sans); font-weight: 800; font-size: clamp(26px, 7.6vw, 34px);
       letter-spacing: .02em; font-variant-numeric: tabular-nums; line-height: 1.1; min-width: 0; overflow-wrap: anywhere;
     }
-    @media (max-width: 419px) {
-      .code { font-size: clamp(22px, 7vw, 28px); }
-      .copy { width: 44px; padding: 0; justify-content: center; }
-      .copy [data-copy-text] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-      .copy svg { width: 20px; height: 20px; }
-    }
     .copy {
       flex: none; display: inline-flex; align-items: center; gap: 6px;
       min-height: 44px; padding: 0 16px; border-radius: 999px;
@@ -181,8 +175,16 @@
       font-weight: 700; font-size: 14px; color: var(--violet);
       transition: background-color .18s, border-color .18s, color .18s;
     }
-    .copy svg { width: 18px; height: 18px; }
+    .copy svg { flex: none; width: 18px; height: 18px; }
     .copy[data-done] { color: #0E7A35; border-color: rgba(23, 198, 83, .4); background: rgba(23, 198, 83, .1); }
+    /* phones: icon-only round button. Must come after the base .copy rules,
+       or their padding squeezes the icon inside the 44px circle. */
+    @media (max-width: 419px) {
+      .code { font-size: clamp(22px, 7vw, 28px); }
+      .copy { width: 44px; height: 44px; padding: 0; justify-content: center; }
+      .copy [data-copy-text] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .copy svg { width: 22px; height: 22px; }
+    }
     .code-card__hint { margin-top: 12px; font-size: 13px; line-height: 1.45; color: var(--graphite); text-align: center; }
 
     /* ===== section chips nav ===== */
@@ -192,9 +194,11 @@
       border-bottom: 1px solid rgba(203, 207, 210, .6);
     }
     .chips ul {
+      position: relative; /* offset parent of the chips, for the scroll-spy maths */
       height: 100%; display: flex; align-items: center; gap: 8px;
       overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity;
-      padding: 0 var(--gutter); max-width: var(--max); margin: 0 auto;
+      /* scroll-padding: chips snap to the gutter, not flush against the screen edge */
+      padding: 0 var(--gutter); scroll-padding-inline: var(--gutter); max-width: var(--max); margin: 0 auto;
     }
     .chips ul::-webkit-scrollbar { display: none; }
     .chips a {
@@ -434,11 +438,11 @@
 
         <dl class="fees">
           <div class="fee">
-            <dt data-i18n-html="fee1">Cargar desde tu banco<span>Desde Europa, en euros</span></dt>
+            <dt data-i18n-html="fee1">Cargar o retirar con tu banco<span>En Europa, en euros</span></dt>
             <dd data-i18n-html="fee1Value">1&nbsp;€ + 0,6&nbsp;%</dd>
           </div>
           <div class="fee">
-            <dt data-i18n-html="fee2">Retirar a tu banco<span>En Latinoamérica</span></dt>
+            <dt data-i18n-html="fee2">Retirar o cargar con tu banco<span>En Latinoamérica</span></dt>
             <dd data-i18n-html="fee2Value">1&nbsp;%</dd>
           </div>
           <div class="fee">
@@ -447,7 +451,7 @@
           </div>
         </dl>
 
-        <p class="example" data-i18n-html="example">Ejemplo: si cargas <strong>200&nbsp;€</strong> desde tu banco, pagas 1&nbsp;€ + 1,20&nbsp;€ = <strong>2,20&nbsp;€</strong>. Enviarlos a otro usuario de Rampa no cuesta nada.</p>
+        <p class="example" data-i18n-html="example">Ejemplo: si cargas <strong>200&nbsp;€</strong> desde tu banco en Europa, pagas 1&nbsp;€ + 1,20&nbsp;€ = <strong>2,20&nbsp;€</strong>. Enviarlos a otro usuario de Rampa no cuesta nada.</p>
       </div>
     </div>
   </section>
@@ -491,7 +495,7 @@
         <details>
           <summary data-i18n="q4">¿Cuánto cuesta?</summary>
           <div class="faq__body">
-            <p data-i18n-html="a4">Abrir y mantener la cuenta es gratis, igual que enviar a otros usuarios y usar Earn. Cargar desde un banco europeo cuesta 1&nbsp;€ + 0,6&nbsp;%, y retirar en Latinoamérica, un 1&nbsp;%. <a href="#costes">Ver costes</a>.</p>
+            <p data-i18n-html="a4">Abrir y mantener la cuenta es gratis, igual que enviar a otros usuarios y usar Earn. Cargar o retirar con un banco europeo cuesta 1&nbsp;€ + 0,6&nbsp;%, y con uno de Latinoamérica, un 1&nbsp;%. <a href="#costes">Ver costes</a>.</p>
           </div>
         </details>
         <details>
@@ -534,7 +538,7 @@
 <footer>
   <div class="wrap">
     <img src="/invite/assets/logo-ink.svg" alt="Rampa" width="96" height="26">
-    <p data-i18n="footer">Rampa no es un banco. El rendimiento de Earn es variable y no está garantizado. Las comisiones mostradas pueden cambiar; consulta siempre el coste en la app antes de confirmar.</p>
+    <p data-i18n="footer">Rampa no es un banco. El rendimiento de Earn es variable y no está garantizado. Las comisiones mostradas arriba pueden cambiar; consulta siempre el coste en la app antes de confirmar.</p>
   </div>
 </footer>
 
@@ -601,7 +605,7 @@
     q7: 'Does Earn have risks?',
     a7: 'Yes. Earn returns are variable and not guaranteed. You can withdraw your money whenever you want. Check its terms and risks in the app before using it.',
     finalBody: 'Download Rampa, create your account with the code and start sending to your loved ones.',
-    footer: 'Rampa is not a bank. Earn returns are variable and not guaranteed. The fees shown may change; always check the cost in the app before you confirm.',
+    footer: 'Rampa is not a bank. Earn returns are variable and not guaranteed. The fees shown above may change; always check the cost in the app before you confirm.',
   };
   // Static markup only (never user input), so innerHTML is safe here.
   const EN_HTML = {
@@ -609,14 +613,14 @@
     featuresTitle: 'All your money, <em>in one app</em>',
     f5Body: 'Move part of your balance to Earn and take it out whenever you want.<span class="note">Returns are variable and not guaranteed.</span>',
     costsTitle: 'Clear <em>fees</em>',
-    fee1: 'Top up from your bank<span>From Europe, in euros</span>',
+    fee1: 'Top up or withdraw with your bank<span>In Europe, in euros</span>',
     fee1Value: '€1 + 0.6%',
-    fee2: 'Withdraw to your bank<span>In Latin America</span>',
+    fee2: 'Withdraw or top up with your bank<span>In Latin America</span>',
     fee2Value: '1%',
-    example: 'Example: if you top up <strong>€200</strong> from your bank, you pay €1 + €1.20 = <strong>€2.20</strong>. Sending it to another Rampa user costs nothing.',
+    example: 'Example: if you top up <strong>€200</strong> from your bank in Europe, you pay €1 + €1.20 = <strong>€2.20</strong>. Sending it to another Rampa user costs nothing.',
     stepsTitle: 'Get started in <em>4 steps</em>',
     faqTitle: 'Frequently asked <em>questions</em>',
-    a4: 'Opening and keeping your account is free, and so are sending to other users and using Earn. Topping up from a European bank costs €1 + 0.6%, and withdrawing in Latin America, 1%. <a href="#costes">See fees</a>.',
+    a4: 'Opening and keeping your account is free, and so are sending to other users and using Earn. Topping up or withdrawing with a European bank costs €1 + 0.6%, and with a Latin American bank, 1%. <a href="#costes">See fees</a>.',
     finalTitle: 'Will you join <em>Rampa?</em>',
   };
   const EN_LABEL = { logo: 'Rampa, top of the page', copyCode: 'Copy code', sections: 'Page sections' };
@@ -864,7 +868,9 @@
     if (!a) return;
     a.setAttribute('aria-current', 'true');
     const ul = a.parentElement.parentElement;
-    const left = a.offsetLeft - 16;
+    // Bring the chip to the row's left gutter (its padding), where the chips also snap.
+    const pad = parseFloat(getComputedStyle(ul).paddingLeft) || 0;
+    const left = a.offsetLeft - pad;
     if (left < ul.scrollLeft || a.offsetLeft + a.offsetWidth > ul.scrollLeft + ul.clientWidth) ul.scrollTo({ left, behavior: 'smooth' });
   };
   const spy = new IntersectionObserver((entries) => {
